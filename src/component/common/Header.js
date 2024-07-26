@@ -1,26 +1,35 @@
+import { Link } from "react-router-dom"
+
 export default function Header(){
     return (
-        <div style = {headerOuter}>
-            <div style = {headerText}>
-                Blog
+        <Link to = "/" style={linkStyle}>
+            <div style = {headerOuter}>
+                <div style = {headerText}>
+                    Blog
+                </div>
             </div>
-        </div>
+        </Link>
+        
     )
 }
 
 const headerOuter = {
     "width": "100%",
     "height": "100px", 
-    "background-color": "#15d4cd",
+    "backgroundColor": "#728d9c",
 
     "display": "flex",
-    "align-items": "center",
+    "alignItems": "center",
 
     "padding": "0px 30px"
 }
 
 const headerText = {
     "color": "white",
-    "font-weight": "bold",
-    "font-size": "40px",
+    "fontWeight": "bold",
+    "fontSize": "40px",
+}
+
+const linkStyle = {
+    "textDecoration": "none"
 }

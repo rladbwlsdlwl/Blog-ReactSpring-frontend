@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import HttpHeaderProvider from './context/HttpHeaderProvider';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import AuthProvider from './context/AuthProvider';
 
 import Home from './component/Home';
 import Login from './component/Login';
@@ -8,22 +8,29 @@ import Signup from './component/Signup';
 import UserHome from './component/UserHome';
 import Error from './component/Error';
 import UserBoard from './component/UserBoard';
+import UserBoardCreate from './component/UserBoardCreate';
+import UserHeader from './component/common/UserHeader';
+import HomeLayout from './component/HomeLayout';
 function App() {
   return (
     <div>
-      <HttpHeaderProvider>
+      <AuthProvider>
       <BrowserRouter>
         <Header />
         <Routes>
-          <Route path = "/" element = {<Home />}></Route>
-          <Route path = "/login" element = {<Login />}></Route>
-          <Route path = "/signup" element = {<Signup />}></Route>
-          <Route path = "/:username" element = {<UserHome />}></Route>
-          <Route path = "/:username/:id" element = {<UserBoard />}></Route>
-          <Route path = "/*" element = {<Error />}></Route>
+        <Route path = "/" element = {<HomeLayout />}>
+          <Route index element = {<Home />}></Route>      
+          <Route path = ":username" element = {<UserHome />}></Route>
+          <Route path = ":username/create" element = {<UserBoardCreate />}></Route> 
+          <Route path = ":username/:id" element = {<UserBoard />}></Route>
+        </Route>
+
+        <Route index path = "/auth/login" element = {<Login />}></Route>
+        <Route path = "/signup" element = {<Signup />}></Route>
+        <Route path = "/*" element = {<Error />}></Route>
         </Routes>
       </BrowserRouter>
-      </HttpHeaderProvider>
+      </AuthProvider>
     </div>
   );
 }

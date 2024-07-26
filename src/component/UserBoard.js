@@ -3,10 +3,10 @@ import { urlpath } from "../utils/apiUtils"
 import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import Error from "./Error"
-import { HttpHeaderContext } from "../context/HttpHeaderProvider"
+import { AuthContext } from "../context/AuthProvider"
 
 export default function UserBoard(){
-    const {gettingToken, settingToken} = useContext(HttpHeaderContext)
+    const {gettingToken, settingToken} = useContext(AuthContext)
 
     const {username, id} = useParams()
     const url = urlpath + `/${username}/${id}`

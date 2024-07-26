@@ -1,7 +1,10 @@
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
-import { HttpHeaderContext } from '../context/HttpHeaderProvider';
-
+import { AuthContext } from '../context/AuthProvider';
+import { urlpath } from '../utils/apiUtils';
+import { Link } from 'react-router-dom';
+import "../css/common.css"
+import "../css/Home.css"
 
 export default function Home(){
     /*
@@ -13,7 +16,7 @@ export default function Home(){
     /*
         header authentication load, set
     */
-    const {gettingToken, settingToken} = useContext(HttpHeaderContext)
+    const {gettingToken, settingToken} = useContext(AuthContext)
 
     // 리다이렉션 후 token 노출 방지
     function settingUrlQueryParam(token){
@@ -21,13 +24,19 @@ export default function Home(){
         window.location.href = "http://localhost:3000"
     }
 
-    const url = "http://localhost:8080/api"
+    const url = urlpath
     const [board, setBoardList] = useState([])
 
     useEffect(() => {
+        console.log("mount!!")
         readBoardList()
+
         if(token != undefined){
             settingUrlQueryParam(token)
+        }
+
+        return () => {
+            console.log("unmount!!")
         }
     }, [])
 
@@ -49,12 +58,28 @@ export default function Home(){
     )
 }
 
-const BoardTemplate = ({title, contents}) => {
+const BoardTemplate = ({title, contents, username, id}) => {
+    const boardpath = `${username}/${id}`
+    const userpath = `${username}`
     return (
-        <div>
-            <p>{title}</p>
-            <p>{contents}</p>
+        <div className = 'boardListOuter'>
+            <div style = {{"height": "100%"}}>
+                <div className='boardListUsername'>
+                    <Link to = {userpath} className = "link">
+                        {username}
+                    </Link>
+                </div>
+                <div className='boardListContent'>
+                    <Link to = {boardpath} className = "link">
+                        <div className='boardListTitle'>{title}</div>
+                        <div>{contents}</div>
+                    </Link>
+                </div>
+                
+                <hr />
+            </div>
         </div>
+    
     )
 }
 
@@ -65,6 +90,8 @@ const BoardList = ({board}) =>{
             return <BoardTemplate 
                 title = {data.title}
                 contents = {data.contents}
+                username = {data.username}
+                id = {data.id}
                 key = {`BOARDLIST_${index}`}
             />
         })

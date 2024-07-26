@@ -1,0 +1,21 @@
+.boardListOuter{
+    margin-left: 30px;
+    height: 200px;
+}
+
+.boardListUsername{
+    padding-bottom: 10px;
+    font-size: 14pt;
+    text-overflow: ellipsis;
+}
+
+.boardListTitle{
+    font-weight: 600;
+    font-size: 20pt;
+    text-overflow: ellipsis;
+}
+
+.boardListContent{
+    height: 150px;
+    text-overflow: ellipsis;
+}
