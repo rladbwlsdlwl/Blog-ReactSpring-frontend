@@ -18,6 +18,7 @@ function App() {
       <BrowserRouter>
         <Header />
         <Routes>
+          
         <Route path = "/" element = {<HomeLayout />}>
           <Route index element = {<Home />}></Route>      
           <Route path = ":username" element = {<UserHome />}></Route>
@@ -25,8 +26,8 @@ function App() {
           <Route path = ":username/:id" element = {<UserBoard />}></Route>
         </Route>
 
-        <Route index path = "/auth/login" element = {<Login />}></Route>
-        <Route path = "/signup" element = {<Signup />}></Route>
+        <Route path = "/auth/login" element = {<Login />}></Route>
+        <Route path = "/auth/signup" element = {<Signup />}></Route>
         <Route path = "/*" element = {<Error />}></Route>
         </Routes>
       </BrowserRouter>
