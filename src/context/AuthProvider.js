@@ -13,10 +13,9 @@ function AuthProvider({children}){
     const [user, setUser] = useState({})
 
     useEffect(() => {
-        // console.log(authheader.current)
-        getUserInfo().then((data) => {
-            setUser(data)
-        })
+
+        getUserInfo()
+
     }, [])
 
     function settingToken(token){
@@ -25,28 +24,33 @@ function AuthProvider({children}){
         localStorage.setItem("Authentication", token)
         authheader.current = token
 
-        getUserInfo().then((data) => {
-            setUser(data)
-        })
+        getUserInfo()
     }
     
     const getUserInfo = async () => {
         // user info값 설정
         const authmeApi = urlpath + "/auth/me"
         const header = {"Authentication": authheader.current}
-        console.log(header)
+
         // api 호출
         try{
             const res = await axios.get(authmeApi, {headers : header})
 
             console.log(res.data)
-            return res.data
+            
+            setUser(res.data)
         }catch(err){
             console.log(err)
+            removeToken()
 
-            return undefined
+            setUser({})
         }
         
+    }
+
+    const removeToken = () => {
+        localStorage.removeItem("Authentication")
+        authheader.current = ""
     }
 
     function gettingToken(){
