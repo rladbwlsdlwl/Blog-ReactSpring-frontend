@@ -11,6 +11,7 @@ import UserBoard from './component/UserBoard';
 import UserBoardCreate from './component/UserBoardCreate';
 import UserHeader from './component/common/UserHeader';
 import HomeLayout from './component/HomeLayout';
+import UserSetting from './component/UserSetting';
 function App() {
   return (
     <div>
@@ -24,6 +25,7 @@ function App() {
           <Route path = ":username" element = {<UserHome />}></Route>
           <Route path = ":username/create" element = {<UserBoardCreate />}></Route> 
           <Route path = ":username/:id" element = {<UserBoard />}></Route>
+          <Route path = ":username/setting" element = {<UserSetting />}></Route>
         </Route>
 
         <Route path = "/auth/login" element = {<Login />}></Route>
