@@ -1,0 +1,107 @@
+.userHomeContainer{
+    margin: 100px 80px;
+    font-size: 10pt;
+}
+
+.boardCreateBtn{
+    margin-bottom: 30px;
+}
+
+.boardListMiniContainer{
+    width: 100%;
+}
+
+.boardListMiniTitle{
+    display: flex;
+    justify-content:space-between;
+
+    margin-bottom: 10px;
+}
+
+.boardListMini{
+    width: 100%;
+}
+
+.boardListMiniTh{
+    text-align: left;
+    font-weight: 300;
+    font-size: 10pt;
+}
+
+.boardListMiniThL, .boardListMiniTdL{
+    text-align: left;
+}
+
+.boardListMiniThM, .boardListMiniTdM{
+    text-align: center;
+}
+
+.boardListMiniThR, .boardListMiniTdR{
+    text-align: right;
+}
+
+
+.boardListMiniBtn, .boardListMainBtn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px black solid;
+    width: 20px;
+    height: 20px;
+    padding: 2px 0px;
+    margin: 20px 4px;
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+.boardListMain{
+    width: 100%;
+}
+
+.boardListMainBtn{
+   width: 40px;
+   height: 40px;
+
+   font-size: 11pt;
+}
+
+.boardListMiniBtnContainer, .boardListMainBtnContainer{
+    text-align: center;
+}
+
+.boardListMainTdL, .boardListMainTdR{
+    padding: 0px;
+    width: 30px;
+}
+
+.boardListMainTdUl{
+    list-style: none;
+    padding: 0px;
+}
+
+.boardListMainTdLi{
+    display: flex;
+    margin: 50px 0px;
+}
+
+.boardListMainTdImg{
+    width: 250px;
+    height: 250px;
+    background-color: black;
+
+    margin-right: 30px;
+}
+
+.boardListMainTdTitle{
+    font-size: 18pt;
+    margin-bottom: 20px;
+    text-overflow: ellipsis;
+}
+
+.boardListMainTdContents{
+    font-weight: 300;
+    text-overflow: ellipsis;
+}
