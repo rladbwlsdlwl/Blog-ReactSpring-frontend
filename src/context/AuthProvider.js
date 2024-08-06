@@ -65,8 +65,12 @@ function AuthProvider({children}){
         return user && user.username
     }
 
+    function gettingUserId(){
+        return user && user.id
+    }
+
     
-    const value = {gettingToken, settingToken, gettingUserEmail, gettingUsername}
+    const value = {gettingToken, settingToken, gettingUserEmail, gettingUsername, gettingUserId}
 
     return (
         <AuthContext.Provider value = {value}>{children}</AuthContext.Provider>
