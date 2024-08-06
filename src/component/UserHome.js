@@ -67,7 +67,7 @@ export default function UserHome(){
             {
                 activeUsername == username && 
                 <div className="boardCreateBtn">
-                    <Link to = {`/${username}/create`} className="link">
+                    <Link to = {`/${username}/new?type=write`} className="link">
                         글작성
                     </Link>
                 </div>

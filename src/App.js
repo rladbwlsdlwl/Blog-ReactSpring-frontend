@@ -8,8 +8,7 @@ import Signup from './component/Signup';
 import UserHome from './component/UserHome';
 import Error from './component/Error';
 import UserBoard from './component/UserBoard';
-import UserBoardCreate from './component/UserBoardCreate';
-import UserHeader from './component/common/UserHeader';
+import UserBoardCreateUpdate from './component/UserBoardCreateUpdate';
 import HomeLayout from './component/HomeLayout';
 import UserSetting from './component/UserSetting';
 function App() {
@@ -23,7 +22,7 @@ function App() {
         <Route path = "/" element = {<HomeLayout />}>
           <Route index element = {<Home />}></Route>      
           <Route path = ":username" element = {<UserHome />}></Route>
-          <Route path = ":username/create" element = {<UserBoardCreate />}></Route> 
+          <Route path = ":username/new" element = {<UserBoardCreateUpdate />}></Route> 
           <Route path = ":username/:id" element = {<UserBoard />}></Route>
           <Route path = ":username/setting" element = {<UserSetting />}></Route>
         </Route>
