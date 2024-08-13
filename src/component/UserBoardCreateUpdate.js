@@ -14,10 +14,12 @@ export default function UserBoardCreateUpdate(){
     
     const urlwrite = urlpath + `/${username}`
     const urlupdate = urlpath + `/${username}/${id}`
+    const urlfilewrite = urlpath + `/${username}/file`
+    const urlfile = urlpath + `/${username}/file/${id}`
 
     // 접속 유저 이름찾기
     // 토큰 불러오기
-    const {gettingToken, settingToken, gettingUsername, gettingUserId} = useContext(AuthContext)
+    const {gettingToken, settingToken, gettingUsername, gettingUserId, getUserInfo} = useContext(AuthContext)
     const [activeUsername, token, author] = [gettingUsername(), gettingToken(), gettingUserId()]
 
 
@@ -25,6 +27,7 @@ export default function UserBoardCreateUpdate(){
     const [board, setBoard] = useState({})
     const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
+    const [duplicateFilename, setDuplicateFilename] = useState([])
 
 
     // 에러 페이지
@@ -36,21 +39,19 @@ export default function UserBoardCreateUpdate(){
         if(type == "write"){
             return 
         }else if(type == "update"){
+            // 게시판 불러오기
             getBoardList() 
             
-            // getFile 로직
-
-
+            // 파일 불러오기 
+            getFileList()
 
         }else{
             setError(true)
         }
     }, [])
 
-    useEffect(() => {
-        console.log(board)
-    }, [board])
 
+    // 게시판 불러오기
     function getBoardList(){
         axios.get(urlupdate).then(res => {
             const data = res.data
@@ -61,6 +62,28 @@ export default function UserBoardCreateUpdate(){
             console.log(err)
             setError(true)
         })
+    }
+
+     // 파일 불러오기
+     function getFileList(){
+        axios.get(urlfile).then(res => {
+            const data = res.data
+            console.log(data)
+
+
+            setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
+            setDuplicateFilename(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - PK, 중복된 파일은 등록하지 않음
+
+            // 바이너리 데이터 to Base64
+            setPreviewFile(data.map(f => {
+                return "data:image/png;base64," + f.file
+            }))
+        }).catch(err => {
+
+            console.log(err)
+
+        })
+
     }
 
 
@@ -82,13 +105,17 @@ export default function UserBoardCreateUpdate(){
                 setFile = {setFile}
                 previewFile = {previewFile}
                 setPreviewFile = {setPreviewFile}
+                duplicateFilename = {duplicateFilename}
 
                 isUpdatePost = {type == "update"}
                 urlwrite = {urlwrite}
                 urlupdate = {urlupdate}
+                urlfilewrite = {urlfilewrite}
                 token = {token}  
                 username = {username}
                 author = {author}
+
+                getUserInfo = {getUserInfo}
             />
 
             <FileList
@@ -107,7 +134,9 @@ export default function UserBoardCreateUpdate(){
     )
 }
 
-const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, urlwrite, urlupdate, isUpdatePost, token, username, author}) => {
+
+// 게시판 전송 및 파일 조작(File to Base64, Binary data) 컨테이너
+const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, duplicateFilename, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, getUserInfo}) => {
 
     const navigate = useNavigate()
 
@@ -115,21 +144,24 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, urlwrite, u
     function handlerImage(e){
         const files = Array.from(e.target.files)
         console.log(files)
+        
 
-
+        // File to Base64
+        // 파일을 이진데이터 텍스트로 변환 - FileReader의 readAsDataURL
         updatePreviewImage(files)
         
         setFile([...file, ...files])
     }
 
 
-    // setting - 파일 미리보기 이미지 (FileReader)
+    // setting - 파일 미리보기 이미지 
     function updatePreviewImage(files){
         
         files.forEach(f => {
             const reader = new FileReader()
             reader.onload = (e) => {
                 const imglink = e.target.result
+                console.log(imglink)
                 setPreviewFile((prev) => [...prev, imglink])
             }
 
@@ -140,49 +172,101 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, urlwrite, u
     }
 
     // 게시글 작성 핸들러
-    function handleSubmitPost(){
+    async function handleSubmitPost(){
         const header = {
             "Authentication": token
         }
 
-        const data = {
+        const postData = {
             ...board, 
             author: author
         }
         
-        
-        if(isUpdatePost){
-            // patch
+        try{
 
-            axios.patch(urlupdate, data, {headers: header}).then(res => {
+            if(isUpdatePost){
+                // patch
+    
+                const res = await axios.patch(urlupdate, postData, {headers: header})
                 const data = res.data
+                
                 console.log(data)
 
                 window.alert("작성 완료")
 
-                navigate(`/${username}/${data.id}`)
-            }).catch(err => {
-                console.log(err)
 
-            })
-        
-        }
-        else{
-            // post
+                await submitPostFile(data.id, isUpdatePost)
+                
+                navigate(`/${username}/${data.id}`)
+
+            }else{
+                // post
+                
+                const res = await axios.post(urlwrite, postData, {headers: header})
+                const data = res.data
+
+                console.log(data)
+
+                window.alert("작성 완료")
+
+
+                await submitPostFile(data.id, isUpdatePost)
+
+                navigate(`/${username}/${data.id}`)
+            }
+
+        }catch(err){
+            console.log(err)
             
-            axios.post(urlwrite, data, {headers: header}).then(res => {
-                const data = res.data
-                console.log(data)
 
-                window.alert("작성 완료")
-
-                navigate(`/${username}/${data.id}`)
-            }).catch(err => {
-                console.log(err)
-
-            })
+            if(err.response.data.status == 401 || err.response.status == 401){ // 토큰 만료 - JWT EXPIRED
+                getUserInfo()
+            } 
         }
     }
+
+
+    // 파일 작성
+    async function submitPostFile(boardId, isUpdatePost){
+        const urlfilewriteapi = `${urlfilewrite}/${boardId}`
+
+        const header = {
+            "Authentication": token,
+            "Content-Type": "multipart/form-data"
+        }
+
+        if(isUpdatePost){
+
+            // formdata로 보내기 위해 File 객체의 상위 클래스인 Blob으로 형변환 
+            const formData = new FormData()
+
+            file.forEach(f => formData.append("file", f))
+            duplicateFilename.forEach(dfilename => formData.append("duplicateFilename", new Blob([dfilename], {type: "application/json"})) )
+            
+            console.log(duplicateFilename)
+            
+
+
+            const res = await axios.patch(urlfilewriteapi, formData, {headers: header})
+            // const data = res.data
+
+            // console.log(data)
+        }
+        else{
+            const formData = new FormData()
+            
+            file.forEach(f => formData.append("file", f))
+            
+
+
+            const res = await axios.post(urlfilewriteapi, formData, {headers: header})
+            // const data = res.data
+
+            // console.log(data)
+
+        }   
+    }
+
 
     return (
         <div className="toolbarContainer">
@@ -198,6 +282,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, urlwrite, u
     )
 }
 
+// 파일 프리뷰 컨테이너
 const FileList = ({file, previewFile, setFile, setPreviewFile}) =>{
 
     useEffect(() => {
@@ -214,9 +299,9 @@ const FileList = ({file, previewFile, setFile, setPreviewFile}) =>{
     return (
         <div className="fileListContainer">
             {
-                previewFile.map((prevFile, index) =><div className="previewImgContainer"> 
-                    <img src = {prevFile} className="previewImg" key = {`preview file - ${index}`}/>
-                    <div className= "previewFilename" key = {`preview file name - ${index}`}><span>{file[index].name}</span> <button className = "deleteButton" onClick = {() => handleDeleteFile(index)}> X </button> </div>
+                previewFile.map((prevFile, index) => <div className="previewImgContainer"> 
+                    <img src = {prevFile} className = "previewImg" key = {`preview file - ${index}`}/>
+                    <div className = "previewFilename" key = {`preview file name - ${index}`}><span>{file[index].name}</span> <button className = "deleteButton" onClick = {() => handleDeleteFile(index)}> X </button> </div>
                 </div>)
             }
         
@@ -224,6 +309,7 @@ const FileList = ({file, previewFile, setFile, setPreviewFile}) =>{
     )
 }
 
+// 게시판 컨테이너
 const BoardList = ({board, setBoard}) =>{
 
     function handleTextarea(e){
@@ -238,13 +324,13 @@ const BoardList = ({board, setBoard}) =>{
 
     return (
         <div>
-            <textarea name = "title" onChange = { handleTextarea } maxLength={15} className="title">
+            <textarea name = "title" value = {board.title} onChange = { handleTextarea } maxLength={15} className="title">
                 
             </textarea>
 
             <hr />
 
-            <textarea name = "contents" onChange = { handleTextarea } maxLength={999998} className="contents">
+            <textarea name = "contents" value = {board.contents} onChange = { handleTextarea } maxLength={999998} className="contents">
                 
             </textarea>
         </div>
