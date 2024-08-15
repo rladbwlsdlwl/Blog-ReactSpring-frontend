@@ -27,7 +27,7 @@ export default function UserBoardCreateUpdate(){
     const [board, setBoard] = useState({})
     const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
-    const [duplicateFilename, setDuplicateFilename] = useState([])
+    const [beforeFilenameList, setbeforeFilenameList] = useState([])
 
 
     // 에러 페이지
@@ -72,7 +72,7 @@ export default function UserBoardCreateUpdate(){
 
 
             setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
-            setDuplicateFilename(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - PK, 중복된 파일은 등록하지 않음
+            setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - PK, 파일 중복 가능
 
             // 바이너리 데이터 to Base64
             setPreviewFile(data.map(f => {
@@ -105,7 +105,7 @@ export default function UserBoardCreateUpdate(){
                 setFile = {setFile}
                 previewFile = {previewFile}
                 setPreviewFile = {setPreviewFile}
-                duplicateFilename = {duplicateFilename}
+                beforeFilenameList = {beforeFilenameList}
 
                 isUpdatePost = {type == "update"}
                 urlwrite = {urlwrite}
@@ -136,7 +136,7 @@ export default function UserBoardCreateUpdate(){
 
 
 // 게시판 전송 및 파일 조작(File to Base64, Binary data) 컨테이너
-const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, duplicateFilename, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, getUserInfo}) => {
+const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, getUserInfo}) => {
 
     const navigate = useNavigate()
 
@@ -241,9 +241,9 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, duplicateFi
             const formData = new FormData()
 
             file.forEach(f => formData.append("file", f))
-            duplicateFilename.forEach(dfilename => formData.append("duplicateFilename", new Blob([dfilename], {type: "application/json"})) )
+            beforeFilenameList.forEach(dfilename => formData.append("beforeFilenameList", new Blob([dfilename], {type: "application/json"})) )
             
-            console.log(duplicateFilename)
+            console.log(beforeFilenameList)
             
 
 
