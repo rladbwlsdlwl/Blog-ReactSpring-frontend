@@ -3,14 +3,16 @@ import { useEffect, useState, useContext } from "react"
 import { useParams, Link } from "react-router-dom"
 import Error from "./Error"
 import { urlpath } from "../utils/apiUtils"
-
+import qs from "qs"
 import "../css/common.css"
 import "../css/UserHome.css"
 import { AuthContext } from "../context/AuthProvider"
+import { byteToBase64 } from "../utils/commonUtils"
 
 export default function UserHome(){
     const {username} = useParams()
     const url = urlpath + `/${username}`
+    const urlfileread = url + "/file"
 
     // 접속한 유저이름 확인
     const {gettingUsername} = useContext(AuthContext)
@@ -19,6 +21,8 @@ export default function UserHome(){
     // 글 불러오기
     const [board, setBoard] = useState([])
     const [boardListOrderButton, setBoardListOrderButton] = useState(1)
+    const [previewFile, setPreviewFile] = useState([])
+
 
     // 목록열기
     const [openList, setOpenList] = useState(false)
@@ -27,7 +31,7 @@ export default function UserHome(){
 
     // 에러 페이지
     const [error, setError] = useState(null)
-
+    console.log(board)
     useEffect(() => {
         getBoardList()
 
@@ -40,8 +44,13 @@ export default function UserHome(){
     function getBoardList(){
         axios.get(url)
             .then((res) => {
+                const data = res.data
                 console.log("SUCCESS TO READ USER BOARD")
-                setBoard(res.data)
+
+
+                getFileList(data.map(file => file.id))
+
+                setBoard(data)
             }).catch((err) => {
                 console.log(`FALIED TO READ USER BOARD - ${err.response.status}`)
                 setError({
@@ -51,6 +60,19 @@ export default function UserHome(){
         })
     }
 
+    async function getFileList(postIdList){
+        console.log(postIdList)
+        const query = {
+            "postIdList": postIdList
+        }
+
+        const res = await axios.get(urlfileread, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
+        const data = res.data
+
+        console.log(data)
+
+        setPreviewFile(data)
+    }
 
 
     if(error){
@@ -106,6 +128,7 @@ export default function UserHome(){
             <div>
                 <BoardListMain 
                     board = {board}
+                    previewFile = {previewFile}
                     username = {username}
                     boardListOrderButton = {boardListOrderButton}
                     setBoardListOrderButton = {setBoardListOrderButton}
@@ -115,7 +138,14 @@ export default function UserHome(){
     )
 }
 
-const BoardListMain = ({board, boardListOrderButton, setBoardListOrderButton, username}) => {
+const BoardListMain = ({board, previewFile, boardListOrderButton, setBoardListOrderButton, username}) => {
+    // 이미지 경로 반환
+    const imageUrl = (postId) =>{
+        const data = previewFile.filter(file => file.postId == postId)
+
+        return byteToBase64(data.map(d => d.file))
+    }
+
     function getBoardListMain(){
         const boardlist = []
 
@@ -125,7 +155,9 @@ const BoardListMain = ({board, boardListOrderButton, setBoardListOrderButton, us
             if(idx >= board.length) break
 
             boardlist.push(<li className = "boardListMainTdLi" key = {`BOARDLIST-${idx}`}>
-                <Link to = {`/${username}/${board[idx].id}`} className="link"><div className = "boardListMainTdImg"> </div></Link>
+                <Link to = {`/${username}/${board[idx].id}`} className="link">
+                    <img src = {imageUrl(board[idx].id)} alt = "이미지가 없습니다" className = "boardListMainTdImg" />
+                </Link>
                 <div style = {{width: "100%"}}>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdTitle">{board[idx].title}</div></Link>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdContents"> {board[idx].contents} </div></Link>

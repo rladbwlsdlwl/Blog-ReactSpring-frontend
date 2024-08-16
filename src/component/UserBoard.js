@@ -1,38 +1,71 @@
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { urlpath } from "../utils/apiUtils"
 import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import Error from "./Error"
 import { AuthContext } from "../context/AuthProvider"
+import { byteToBase64 } from "../utils/commonUtils"
 
 export default function UserBoard(){
-    const {gettingToken, settingToken} = useContext(AuthContext)
-
     const {username, id} = useParams()
     const url = urlpath + `/${username}/${id}`
+    const urlfile = urlpath + `/${username}/file/${id}`
 
+
+    // 활성 회원 불러오기
+    const { gettingUsername } = useContext(AuthContext)
+    const activeUsername = gettingUsername()
+
+
+    // 데이터 로드
     const [board, setBoard] = useState({})
+    const [previewFile, setPreviewFile] = useState([])
+
     const [error, setError] = useState(null)
 
 
     useEffect(() => {
-        getData()
+
+        getBoard()
+        getFileList()
+
     }, [])
-    function getData(){
-        axios.get(url)
-            .then((res) => {
-                console.log("SUCCESS TO READ USER BOARD")
+
+
+    // 이미지 파일 불러오기
+    function getFileList(){
+        axios.get(urlfile).then(res => {
+            const data = res.data
+            console.log(data)
+
+            setPreviewFile(data)
+        }).catch(err => {
+
+            console.log(err)
+
+        })
+
+    }
+
+
+    // 게시판 불러오기
+    function getBoard(){
+        axios.get(url).then(res => {
+                const data = res.data 
+
                 setBoard(res.data)
             }).catch((err) => {
-                console.log(`FALIED TO READ USER BOARD - ${err.response.status}`)
+
                 setError({
                     status: err.response.data.status, 
                     message: err.response.data.message
                 })
+
         })
     }
 
-    console.log(url)
+
+
     if(error){
         return (
             <Error 
@@ -44,13 +77,20 @@ export default function UserBoard(){
         return (
         <div>
             {
-
+                activeUsername == username && <div>
+                    <Link to = {`/${activeUsername}/new?type=update&id=${id}`} className="link"> <span> 수정 </span> </Link>
+                    <span> 삭제 </span>
+                </div>
             }
+            
             <div>
-                수정
-            </div>
-            <div> 
-                삭제
+                {
+                
+                    previewFile.map(data => <>
+                        <img src = {byteToBase64(data.file)} className="previewImg" alt = "이미지 없음"/>
+                        </>
+                    )
+                }
             </div>
             <div>
                 {board.title}

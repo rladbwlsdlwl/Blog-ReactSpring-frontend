@@ -6,6 +6,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import axios from "axios"
 
 import "../css/UserBoardCreateUpdate.css"
+import { byteToBase64 } from "../utils/commonUtils"
 
 export default function UserBoardCreateUpdate(){
     const {username} = useParams()
@@ -76,7 +77,7 @@ export default function UserBoardCreateUpdate(){
 
             // 바이너리 데이터 to Base64
             setPreviewFile(data.map(f => {
-                return "data:image/png;base64," + f.file
+                return byteToBase64(f.file)
             }))
         }).catch(err => {
 

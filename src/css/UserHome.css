@@ -90,9 +90,10 @@
 .boardListMainTdImg{
     width: 250px;
     height: 250px;
-    background-color: black;
 
     margin-right: 30px;
+
+    object-fit: cover;
 }
 
 .boardListMainTdTitle{
