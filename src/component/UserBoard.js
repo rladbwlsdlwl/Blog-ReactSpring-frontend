@@ -5,6 +5,9 @@ import axios from "axios"
 import Error from "./Error"
 import { AuthContext } from "../context/AuthProvider"
 import { byteToBase64 } from "../utils/commonUtils"
+import BoardList from "./common/BoardList"
+import FileList from "./common/FileList"
+import "../css/UserBoard.css"
 
 export default function UserBoard(){
     const {username, id} = useParams()
@@ -19,6 +22,7 @@ export default function UserBoard(){
 
     // 데이터 로드
     const [board, setBoard] = useState({})
+    const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
 
     const [error, setError] = useState(null)
@@ -37,8 +41,14 @@ export default function UserBoard(){
         axios.get(urlfile).then(res => {
             const data = res.data
             console.log(data)
-
-            setPreviewFile(data)
+            
+            setFile(data.map(data => {
+                return {
+                    name: data.originalFilename,
+                    ...data
+                }
+            }))
+            setPreviewFile(data.map(data => byteToBase64(data.file)))
         }).catch(err => {
 
             console.log(err)
@@ -75,29 +85,52 @@ export default function UserBoard(){
         )
     }else{
         return (
-        <div>
-            {
-                activeUsername == username && <div>
-                    <Link to = {`/${activeUsername}/new?type=update&id=${id}`} className="link"> <span> 수정 </span> </Link>
-                    <span> 삭제 </span>
-                </div>
+        <div className = "userBoardContainer">
+            { 
+                // 내 글 설정 
+                activeUsername == username && 
+                <PostToolBar 
+                    activeUsername={activeUsername}
+                    id = {id}
+                />
             }
             
-            <div>
-                {
-                
-                    previewFile.map(data => <>
-                        <img src = {byteToBase64(data.file)} className="previewImg" alt = "이미지 없음"/>
-                        </>
-                    )
-                }
-            </div>
-            <div>
-                {board.title}
-            </div>
-            <div>
-                {board.contents}
-            </div>
+            <FileList 
+                previewFile = {previewFile}
+                file = {file}
+                disabled = {true}
+            />
+
+            <BoardList 
+                board = {board}
+                disabled = {true}
+            />
+
         </div>
+        
     )}
+    
+}
+
+const PostToolBar = ({activeUsername, id}) => {
+    const [openPost, setOpenPost] = useState(false)
+
+    return (
+        <div className = "postToolbarContainer">
+            <div className = "postToolbarSettingBtnContainer">
+                <button className="postToolbarSettingBtn" onClick = {(e) => setOpenPost(!openPost)}> ⚙️ </button>
+            </div>
+            
+            {
+                openPost && <div>
+                    <div className="postToolbarSettingBtnOpen">
+                        <Link to = {`/${activeUsername}/new?type=update&id=${id}`} className="link"> 수정 </Link>
+                    </div>
+                    <div className="postToolbarSettingBtnOpen">
+                        삭제
+                    </div>
+                </div>
+            }
+        </div>
+    )
 }

@@ -4,6 +4,8 @@ import { urlpath } from "../utils/apiUtils"
 import Error from "./Error"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import axios from "axios"
+import BoardList from "./common/BoardList"
+import FileList from "./common/FileList"
 
 import "../css/UserBoardCreateUpdate.css"
 import { byteToBase64 } from "../utils/commonUtils"
@@ -129,7 +131,6 @@ export default function UserBoardCreateUpdate(){
             <BoardList 
                 board = {board}
                 setBoard = {setBoard}
-                previewFile = {previewFile}
             />
         </div>
     )
@@ -279,61 +280,6 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             <button onClick = {handleSubmitPost} className="postButton">
                 저장
             </button>
-        </div>
-    )
-}
-
-// 파일 프리뷰 컨테이너
-const FileList = ({file, previewFile, setFile, setPreviewFile}) =>{
-
-    useEffect(() => {
-        console.log(previewFile)
-    }, [previewFile])
-
-
-    function handleDeleteFile(index){
-        setFile(file.filter((data, idx) => idx != index))
-        setPreviewFile(previewFile.filter((data, idx) => idx != index))
-    }
-
-
-    return (
-        <div className="fileListContainer">
-            {
-                previewFile.map((prevFile, index) => <div className="previewImgContainer"> 
-                    <img src = {prevFile} className = "previewImg" key = {`preview file - ${index}`}/>
-                    <div className = "previewFilename" key = {`preview file name - ${index}`}><span>{file[index].name}</span> <button className = "deleteButton" onClick = {() => handleDeleteFile(index)}> X </button> </div>
-                </div>)
-            }
-        
-        </div>
-    )
-}
-
-// 게시판 컨테이너
-const BoardList = ({board, setBoard}) =>{
-
-    function handleTextarea(e){
-        console.log(e)
-        const {name, value} = e.target
-
-        setBoard({
-            ...board,
-            [name]: value
-        })
-    }
-
-    return (
-        <div>
-            <textarea name = "title" value = {board.title} onChange = { handleTextarea } maxLength={15} className="title">
-                
-            </textarea>
-
-            <hr />
-
-            <textarea name = "contents" value = {board.contents} onChange = { handleTextarea } maxLength={999998} className="contents">
-                
-            </textarea>
         </div>
     )
 }
