@@ -8,10 +8,10 @@ import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 
 import "../css/UserBoardCreateUpdate.css"
-import { byteToBase64 } from "../utils/commonUtils"
+import { byteToBase64, getErrorCode, getErrorMsg } from "../utils/commonUtils"
 
 export default function UserBoardCreateUpdate(){
-    const {username} = useParams()
+    const { username } = useParams()
     const [URLSearchParams, SetURLSearchParams] = useSearchParams()
     const [type, id] = [URLSearchParams.get("type"), URLSearchParams.get("id")]
     
@@ -20,10 +20,11 @@ export default function UserBoardCreateUpdate(){
     const urlfilewrite = urlpath + `/${username}/file`
     const urlfile = urlpath + `/${username}/file/${id}`
 
+    
     // 접속 유저 이름찾기
     // 토큰 불러오기
-    const {gettingToken, settingToken, gettingUsername, gettingUserId, getUserInfo} = useContext(AuthContext)
-    const [activeUsername, token, author] = [gettingUsername(), gettingToken(), gettingUserId()]
+    const { gettingToken, settingToken, gettingUsername, gettingUserId } = useContext(AuthContext)
+    const [ activeUsername, token, author ] = [gettingUsername(), gettingToken(), gettingUserId()]
 
 
     // 인풋 데이터
@@ -38,7 +39,7 @@ export default function UserBoardCreateUpdate(){
 
 
     useEffect(() => {
-        console.log(type, id)
+        
         if(type == "write"){
             return 
         }else if(type == "update"){
@@ -51,6 +52,7 @@ export default function UserBoardCreateUpdate(){
         }else{
             setError(true)
         }
+
     }, [])
 
 
@@ -73,9 +75,9 @@ export default function UserBoardCreateUpdate(){
             const data = res.data
             console.log(data)
 
-
+            // 바이너리 데이터 to File(Blob)
             setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
-            setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - PK, 파일 중복 가능
+            setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - 파일 중복가능 (기존파일과 비교하여 파일 등록 예정)
 
             // 바이너리 데이터 to Base64
             setPreviewFile(data.map(f => {
@@ -84,6 +86,7 @@ export default function UserBoardCreateUpdate(){
         }).catch(err => {
 
             console.log(err)
+            setError(true)
 
         })
 
@@ -118,7 +121,9 @@ export default function UserBoardCreateUpdate(){
                 username = {username}
                 author = {author}
 
-                getUserInfo = {getUserInfo}
+                settingToken = {settingToken}
+                getErrorCode = {getErrorCode}
+                getErrorMsg = {getErrorMsg}
             />
 
             <FileList
@@ -138,14 +143,14 @@ export default function UserBoardCreateUpdate(){
 
 
 // 게시판 전송 및 파일 조작(File to Base64, Binary data) 컨테이너
-const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, getUserInfo}) => {
+const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, settingToken, getErrorCode, getErrorMsg}) => {
 
     const navigate = useNavigate()
 
     // setting - 파일 이미지 (File)
     function handlerImage(e){
         const files = Array.from(e.target.files)
-        console.log(files)
+        // console.log(files)
         
 
         // File to Base64
@@ -163,7 +168,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             const reader = new FileReader()
             reader.onload = (e) => {
                 const imglink = e.target.result
-                console.log(imglink)
+                // console.log(imglink)
                 setPreviewFile((prev) => [...prev, imglink])
             }
 
@@ -174,7 +179,30 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
     }
 
     // 게시글 작성 핸들러
-    async function handleSubmitPost(){
+    function handleSubmitPost(){
+        
+        postBoard().then((res) => {
+            const boardId = res
+            
+            navigate(`/${username}/${boardId}`)
+
+
+        }).catch(err => {
+
+            console.log(err)
+            
+            const code = getErrorCode(err)
+            if(code == 401){ // 토큰 만료 - JWT EXPIRED
+                settingToken("")
+            } 
+
+            const msg = getErrorMsg(err)
+            alert(`게시판 작성 에러 - ${msg}`)
+        })
+    }
+
+    // 게시글 작성
+    async function postBoard(){
         const header = {
             "Authentication": token
         }
@@ -183,50 +211,33 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             ...board, 
             author: author
         }
-        
-        try{
 
-            if(isUpdatePost){
-                // patch
-    
-                const res = await axios.patch(urlupdate, postData, {headers: header})
-                const data = res.data
-                
-                console.log(data)
+        if(isUpdatePost){
+            // patch
 
-                window.alert("작성 완료")
-
-
-                await submitPostFile(data.id, isUpdatePost)
-                
-                navigate(`/${username}/${data.id}`)
-
-            }else{
-                // post
-                
-                const res = await axios.post(urlwrite, postData, {headers: header})
-                const data = res.data
-
-                console.log(data)
-
-                window.alert("작성 완료")
-
-
-                await submitPostFile(data.id, isUpdatePost)
-
-                navigate(`/${username}/${data.id}`)
-            }
-
-        }catch(err){
-            console.log(err)
+            const res = await axios.patch(urlupdate, postData, {headers: header})
+            const data = res.data
             
+            console.log(data)
 
-            if(err.response.data.status == 401 || err.response.status == 401){ // 토큰 만료 - JWT EXPIRED
-                getUserInfo()
-            } 
+            await submitPostFile(data.id, isUpdatePost)
+
+            return data.id
+            
+        }else{
+            // post
+            
+            const res = await axios.post(urlwrite, postData, {headers: header})
+            const data = res.data
+
+            console.log(data)
+
+            await submitPostFile(data.id, isUpdatePost)
+
+            return data.id
         }
-    }
 
+    }
 
     // 파일 작성
     async function submitPostFile(boardId, isUpdatePost){
@@ -239,13 +250,14 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
 
         if(isUpdatePost){
 
+            // beforeFilenameList - String 포함하여 전송
             // formdata로 보내기 위해 File 객체의 상위 클래스인 Blob으로 형변환 
             const formData = new FormData()
 
             file.forEach(f => formData.append("file", f))
             beforeFilenameList.forEach(dfilename => formData.append("beforeFilenameList", new Blob([dfilename], {type: "application/json"})) )
             
-            console.log(beforeFilenameList)
+            // console.log(beforeFilenameList)
             
 
 

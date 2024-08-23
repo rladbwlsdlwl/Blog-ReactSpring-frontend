@@ -1,10 +1,10 @@
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { urlpath } from "../utils/apiUtils"
 import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import Error from "./Error"
 import { AuthContext } from "../context/AuthProvider"
-import { byteToBase64 } from "../utils/commonUtils"
+import { byteToBase64, getErrorCode, getErrorMsg } from "../utils/commonUtils"
 import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 import "../css/UserBoard.css"
@@ -16,8 +16,10 @@ export default function UserBoard(){
 
 
     // 활성 회원 불러오기
-    const { gettingUsername } = useContext(AuthContext)
+    const { gettingUsername, gettingToken, settingToken } = useContext(AuthContext)
     const activeUsername = gettingUsername()
+
+    const token = gettingToken()
 
 
     // 데이터 로드
@@ -76,11 +78,11 @@ export default function UserBoard(){
 
 
 
-    if(error){
+    if(username != activeUsername || error){
         return (
             <Error 
-                status = {error.status} 
-                message = {error.message}
+                status = "400"
+                message = "잘못된 접근입니다"
             />
         )
     }else{
@@ -92,6 +94,11 @@ export default function UserBoard(){
                 <PostToolBar 
                     activeUsername={activeUsername}
                     id = {id}
+                    urlBoardDelete = {url}
+                    token = {token}
+                    settingToken = {settingToken}
+                    getErrorCode = {getErrorCode}
+                    getErrorMsg = {getErrorMsg}
                 />
             }
             
@@ -112,8 +119,49 @@ export default function UserBoard(){
     
 }
 
-const PostToolBar = ({activeUsername, id}) => {
+const PostToolBar = ({activeUsername, id, urlBoardDelete, token, settingToken, getErrorCode, getErrorMsg}) => {
+    const navigate = useNavigate()
+
+    // setting button
     const [openPost, setOpenPost] = useState(false)
+
+
+    function handleDeletePost(e){
+        
+        const selectedOk = window.confirm("삭제하시겠습니까?")
+ 
+        if(selectedOk){
+
+            deleteBoard().then(() => {
+
+                navigate(`/${activeUsername}`)
+
+            }).catch(err => {
+                console.log(err)
+                const code = getErrorCode(err)
+
+                if(code == 401){ // 토큰만료 or 권한 없음
+                    settingToken("")
+                }
+
+                const msg = getErrorMsg(err)
+
+                window.alert(`삭제에러! - ${msg}`)
+        
+            })
+
+        }
+    }
+
+    async function deleteBoard(){
+        const header = {
+            Authentication: token
+        }
+
+        await axios.delete(urlBoardDelete, {headers: header})
+    }
+
+
 
     return (
         <div className = "postToolbarContainer">
@@ -127,7 +175,7 @@ const PostToolBar = ({activeUsername, id}) => {
                         <Link to = {`/${activeUsername}/new?type=update&id=${id}`} className="link"> 수정 </Link>
                     </div>
                     <div className="postToolbarSettingBtnOpen">
-                        삭제
+                        <Link onClick = {handleDeletePost} className="link" > 삭제 </Link>
                     </div>
                 </div>
             }
