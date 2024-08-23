@@ -15,13 +15,13 @@ export default function BoardList({board, setBoard, disabled = false}){
 
     return (
         <div>
-            <textarea name = "boardListTitle" value = {board.title} onChange = { handleTextarea } maxLength={15} className="title" disabled = {disabled}>
+            <textarea name = "title" value = {board.title} onChange = { handleTextarea } maxLength={15} className="boardListTitle" disabled = {disabled}>
                 
             </textarea>
 
             <hr />
 
-            <textarea name = "boardListContents" value = {board.contents} onChange = { handleTextarea } maxLength={999998} className="contents" disabled = {disabled}>
+            <textarea name = "contents" value = {board.contents} onChange = { handleTextarea } maxLength={999998} className="boardListContents" disabled = {disabled}>
                 
             </textarea>
         </div>
