@@ -5,6 +5,8 @@ import { urlpath } from '../utils/apiUtils';
 import { Link } from 'react-router-dom';
 import "../css/common.css"
 import "../css/Home.css"
+import qs from "qs"
+import { byteToBase64 } from '../utils/commonUtils';
 
 export default function Home(){
     /*
@@ -26,83 +28,127 @@ export default function Home(){
 
     const url = urlpath
     const [board, setBoardList] = useState([])
+    const [previewFile, setPreviewFile] = useState([])
 
     useEffect(() => {
-        console.log("mount!!")
-        readBoardList()
+        
+        readBoardList().then((code) => {
+        
+            console.log(`success to read data, RESPONSE CODE: ${code}`)
+        
+        }).catch(err => {
+
+            console.log(`failed to load data - ${err}`)
+
+        })
 
         if(token != undefined){
             settingUrlQueryParam(token)
         }
 
-        return () => {
-            console.log("unmount!!")
-        }
     }, [])
 
     // 게시글 읽기
-    function readBoardList(){
-        axios.get(url)
-            .then((res) => {    
-                setBoardList(res.data)
-                console.log(`success to read data, RESPONSE CODE: ${res.status}`)
-            }).catch((err) => {
-                console.log(`failed to load data - ${err}`)
-        })
+    async function readBoardList(){
+        const res = await axios.get(url)
+
+        const data = res.data
+
+        // 파일 불러오기
+        const boardIdList = data.map(d => d.id)
+        const usernameList = data.map(d => d.username)
+        await readFileList(boardIdList, usernameList)
+
+
+        setBoardList(data)
+
+        return res.status
+    }
+
+
+    // 파일 읽기
+    async function readFileList(boardIdList, usernameList){
+        const urlfile = url + "/username/file"
+        const query = {
+            postIdList: boardIdList,
+            usernameList: usernameList
+        }
+
+        const res = await axios.get(urlfile, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
+
+        const data = res.data
+        console.log(data)
+        setPreviewFile(data)
     }
 
     return (
         <div>
-            <BoardList board = {board}></BoardList>
+            <BoardList 
+                board = {board} 
+                previewFile = {previewFile}
+            />
         </div>
     )
 }
 
-const BoardTemplate = ({title, contents, username, id}) => {
+const BoardTemplate = ({title, contents, username, id, previewFile}) => {
     const boardpath = `${username}/${id}`
     const userpath = `${username}`
-    return (
-        <div className = 'boardListOuter'>
-            <div style = {{"height": "100%"}}>
-                <div className='boardListUsername'>
-                    <Link to = {userpath} className = "link">
-                        {username}
-                    </Link>
+
+    return (<div>
+                <div className = 'boardTemplateContainer'>
+                    <div className='boardTemplateUsername'>
+                        <Link to = {userpath} className = "link">
+                            {username}
+                        </Link>
+                    </div>
+                    <div className='boardTemplateBodyContainer'>
+                        <Link to = {boardpath} className = "link">
+                            <div className='boardTemplateBody'>
+                                <div className='boardTemplateBodyL'>
+                                    <div className='boardTemplateTitle'>{title}</div>
+                                    <div className='boardTemplateContents'>{contents}</div>
+                                </div>
+                                <div className='boardTemplateBodyR'>
+                                    <img src = {previewFile} alt = "이미지가 없습니다" className='boardTemplateImg'/>
+                                </div>
+                                
+                                </div>
+                        </Link>
+                    </div>
                 </div>
-                <div className='boardListContent'>
-                    <Link to = {boardpath} className = "link">
-                        <div className='boardListTitle'>{title}</div>
-                        <div>{contents}</div>
-                    </Link>
-                </div>
-                
                 <hr />
-            </div>
         </div>
     
     )
 }
 
 
-const BoardList = ({board}) =>{
-    function showBoardList(){
-        return board.map((data, index) => {
-            return <BoardTemplate 
-                title = {data.title}
-                contents = {data.contents}
-                username = {data.username}
-                id = {data.id}
-                key = {`BOARDLIST_${index}`}
-            />
-        })
+const BoardList = ({board, previewFile}) =>{
+    function getPreviewFile(postId){
+        const data =  previewFile.filter(data => data.postId == postId)
 
+        return byteToBase64(data.map(d => d.file))
     }
 
     return (
-        <div>
+        <table className='boardListTableContainer'>
+            <thead />
+            <tbody>
             {
-                showBoardList()
+                board.map((data, index) => <tr><td>
+                    <BoardTemplate 
+                        title = {data.title}
+                        contents = {data.contents}
+                        username = {data.username}
+                        id = {data.id}
+
+                        previewFile = {getPreviewFile(data.id)}
+                        key = {`BOARDLIST_${index}`}
+                    />
+                </td></tr>)
             }
-        </div>
+            </tbody>
+        </table>
     )
 }
