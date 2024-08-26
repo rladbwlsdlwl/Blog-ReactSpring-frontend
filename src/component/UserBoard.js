@@ -78,7 +78,7 @@ export default function UserBoard(){
 
 
 
-    if(username != activeUsername || error){
+    if(error){
         return (
             <Error 
                 status = "400"
