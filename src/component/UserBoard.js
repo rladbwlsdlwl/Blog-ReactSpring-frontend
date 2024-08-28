@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import Error from "./Error"
 import { AuthContext } from "../context/AuthProvider"
-import { byteToBase64, getErrorCode, getErrorMsg } from "../utils/commonUtils"
+import { byteToBase64, getDateTemplate2, getErrorCode, getErrorMsg } from "../utils/commonUtils"
 import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 import "../css/UserBoard.css"
@@ -108,6 +108,11 @@ export default function UserBoard(){
                 disabled = {true}
             />
 
+            <BoardOption
+                board = { Object.keys(board).length == 0 ? null: board }
+                username = {username}
+            />
+
             <BoardList 
                 board = {board}
                 disabled = {true}
@@ -179,6 +184,21 @@ const PostToolBar = ({activeUsername, id, urlBoardDelete, token, settingToken, g
                     </div>
                 </div>
             }
+        </div>
+    )
+}
+
+const BoardOption = ({ board, username }) => {
+
+    return (
+        <div className="boardOption">
+            <Link className="boardOptionL link" to = {`/${username}`}>
+                { username }
+            </Link>
+            <span>
+                { board && getDateTemplate2(board.created_at) }에 작성한 글입니다
+            </span>
+            
         </div>
     )
 }

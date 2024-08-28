@@ -21,3 +21,13 @@ export function getErrorMsg(err){
 export function getErrorCode(err){
     return err.response.data.status || err.response.status
 }
+
+// yyyyMMddHHmmss -> yyyy-MM-dd
+export function getDateTemplate1(date){
+    return date.substr(0, 4) + "-" + date.substr(4, 2) + "-" + date.substr(6, 2)
+}
+
+// yyyyMMddHHmmss -> yyyy. MM. dd HH: mm
+export function getDateTemplate2(date){
+    return date.substr(0, 4) + ". " + date.substr(4, 2) + ". " + date.substr(6, 2) + " " + date.substr(8, 2) + ": " + date.substr(10, 2)
+}

@@ -13,7 +13,7 @@ import HomeLayout from './component/HomeLayout';
 import UserSetting from './component/UserSetting';
 function App() {
   return (
-    <div>
+    <div style = { {"minWidth": "1000px"} }>
       <AuthProvider>
       <BrowserRouter>
         <Header />

@@ -1,4 +1,9 @@
+.homeContainer{
+    padding: 0px 40px;
+}
+
 .boardListTableContainer{
+    table-layout: fixed;
     width: 100%;
     margin-top: 80px;
 }
@@ -23,17 +28,26 @@
     justify-content: space-between;
 }
 
+.boardTemplateBodyL{
+    width: 80%;
+    height: 250px;
+    overflow: hidden;
+}
+
 .boardTemplateTitle{
     font-weight: 400;
     font-size: 20pt;
     text-overflow: ellipsis;
-    
-
 }
 
-.boardTemplateBodyR{
+.boardTemplateContents{
+    overflow-wrap: break-word;
+    height: 70%;
 
+    margin: 20px 100px 0px 0px;
+    overflow: hidden;
 }
+
 .boardTemplateImg{
     width: 250px;
     height: 250px;

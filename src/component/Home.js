@@ -82,7 +82,7 @@ export default function Home(){
     }
 
     return (
-        <div>
+        <div className = "homeContainer">
             <BoardList 
                 board = {board} 
                 previewFile = {previewFile}
@@ -109,12 +109,16 @@ const BoardTemplate = ({title, contents, username, id, previewFile}) => {
                                     <div className='boardTemplateTitle'>{title}</div>
                                     <div className='boardTemplateContents'>{contents}</div>
                                 </div>
-                                <div className='boardTemplateBodyR'>
-                                    <img src = {previewFile} alt = "이미지가 없습니다" className='boardTemplateImg'/>
+                                <div>
+                                    <img src = {previewFile} className='boardTemplateImg'/>
                                 </div>
                                 
                                 </div>
                         </Link>
+                    </div>
+                    <div>
+                        <span>❤️🤍 좋아요 3</span>
+                        <span>💬 댓글 3</span>
                     </div>
                 </div>
                 <hr />

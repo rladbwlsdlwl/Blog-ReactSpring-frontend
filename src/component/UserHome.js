@@ -7,7 +7,7 @@ import qs from "qs"
 import "../css/common.css"
 import "../css/UserHome.css"
 import { AuthContext } from "../context/AuthProvider"
-import { byteToBase64 } from "../utils/commonUtils"
+import { byteToBase64, getDateTemplate1 } from "../utils/commonUtils"
 
 export default function UserHome(){
     const {username} = useParams()
@@ -156,9 +156,9 @@ const BoardListMain = ({board, previewFile, boardListOrderButton, setBoardListOr
 
             boardlist.push(<li className = "boardListMainTdLi" key = {`BOARDLIST-${idx}`}>
                 <Link to = {`/${username}/${board[idx].id}`} className="link">
-                    <img src = {imageUrl(board[idx].id)} alt = "이미지가 없습니다" className = "boardListMainTdImg" />
+                    <img src = {imageUrl(board[idx].id)} className = "boardListMainTdImg" />
                 </Link>
-                <div style = {{width: "100%"}}>
+                <div>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdTitle">{board[idx].title}</div></Link>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdContents"> {board[idx].contents} </div></Link>
                 </div>
@@ -240,8 +240,8 @@ const BoardListMini = ({board, username, openListOrderButton, setOpenListOrderBu
 
             boardlist.push(<tr key = {`boardlist-mini ${idx}`}>
                 <td className="boardListMiniTdL"><Link to = {`/${username}/${board[idx].id}`} className="link">{ board[idx].title }</Link></td>
-                <td className="boardListMiniTdM"><Link to = {`/${username}/${board[idx].id}`} className="link"> 11 </Link></td>
-                <td className="boardListMiniTdR"><Link to = {`/${username}/${board[idx].id}`} className="link"> 2024-07-28</Link></td>
+                <td className="boardListMiniTdM"><Link to = {`/${username}/${board[idx].id}`} className="link"> { board[idx].views } </Link></td>
+                <td className="boardListMiniTdR"><Link to = {`/${username}/${board[idx].id}`} className="link"> { getDateTemplate1(board[idx].created_at) } </Link></td>
             </tr>)
         }
 
