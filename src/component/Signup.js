@@ -4,6 +4,7 @@ import { useState, useContext, useEffect } from "react"
 import { urlpath } from "../utils/apiUtils"
 import axios from "axios"
 import { AuthContext } from "../context/AuthProvider"
+import { getErrorMsg } from "../utils/commonUtils"
 
 export default function Signup(){
 
@@ -58,7 +59,8 @@ export default function Signup(){
         // 비지니스 로직 
         // 아이디 이메일 비밀번호 패턴 확인
         if(user.password != user.rePassword){
-            setErrorMsg([{message: "비밀번호가 일치하지 않습니다"}])
+            window.alert("password: 비밀번호가 일치하지 않습니다")
+            setErrorMsg(["password: 비밀번호가 일치하지 않습니다"])
             
             return 
         }
@@ -80,14 +82,10 @@ export default function Signup(){
         }).catch(e => {
             console.log(e)
 
+            const msg = getErrorMsg(e)
 
-            // error message setting  
-            const dataMapper = (data) => {
-                return data.message ? [{"message": data.message}] : data
-            }
-
-            const data = e.response.data
-            setErrorMsg([...dataMapper(data)])
+            window.alert(msg)
+            setErrorMsg(msg.split("\n"))
         })
 
 
@@ -99,20 +97,20 @@ export default function Signup(){
             {/* input box */}
              <div className="signupOuter">
                 <div className="inputOuterBox">
-                    <input className="inputBox" type = "text" placeholder="닉네임" name = "username" value = {user.username} onChange={handleUserSetting}></input>
+                    <input className="inputBox" type = "text" placeholder="닉네임" name = "username" value = {user.username} onChange={handleUserSetting} onKeyDown = {(e) => e.key == "Enter" && submitHandler()}></input>
                 </div>
                 <div className="inputOuterBox">
-                    <input className="inputBox" type = "email" placeholder="이메일" name = "email" value = {user.email} onChange={handleUserSetting} readOnly = {email != null? true: false}></input>
+                    <input className="inputBox" type = "email" placeholder="이메일" name = "email" value = {user.email} onChange={handleUserSetting} onKeyDown = {(e) => e.key == "Enter" && submitHandler()} readOnly = {email != null? true: false}></input>
                 </div>
                 <div className="inputOuterBox">
-                    <input className="inputBox" type = "password" placeholder="패스워드" name = "password" value = {user.password} onChange={handleUserSetting}></input>
+                    <input className="inputBox" type = "password" placeholder="패스워드" name = "password" value = {user.password} onChange={handleUserSetting} onKeyDown = {(e) => e.key == "Enter" && submitHandler()}></input>
                 </div>
                 <div className="inputOuterBox">
-                    <input className="inputBox" type = "password" placeholder="패스워드를 다시 입력하세요" name = "rePassword" value = {user.rePassword} onChange={handleUserSetting}></input>
+                    <input className="inputBox" type = "password" placeholder="패스워드를 다시 입력하세요" name = "rePassword" value = {user.rePassword} onChange={handleUserSetting} onKeyDown = {(e) => e.key == "Enter" && submitHandler()}></input>
                 </div>
                 <div className="inputOuterBox">
                     {
-                        errorMsg.map((data, index) => <div key = {`errormessage ${index}`}> {data.field} {data.message} </div>)
+                        errorMsg.map((data, index) => <div key = {`errormessage ${index}`}> { data } </div>)
                     }
                 </div>
                 <div className="inputOuterBox">
