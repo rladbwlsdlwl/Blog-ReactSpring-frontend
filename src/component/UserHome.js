@@ -7,7 +7,7 @@ import qs from "qs"
 import "../css/common.css"
 import "../css/UserHome.css"
 import { AuthContext } from "../context/AuthProvider"
-import { byteToBase64, getDateTemplate1 } from "../utils/commonUtils"
+import { byteToBase64, getDateTemplate1, getErrorCode, getErrorMsg } from "../utils/commonUtils"
 
 export default function UserHome(){
     const {username} = useParams()
@@ -31,39 +31,56 @@ export default function UserHome(){
 
     // 에러 페이지
     const [error, setError] = useState(null)
-    console.log(board)
+
+
     useEffect(() => {
-        getBoardList()
+
+        getBoardList().then(code => {
+
+            console.log(code)
+
+        }).catch(err => {
+
+            const errcode = getErrorCode(err)
+            const errmsg = getErrorMsg(err)
+
+            console.log(`FALIED TO READ USER BOARD - ${errcode}`)
+            setError({
+                status: errcode, 
+                message: errmsg
+            })
+
+        })
 
         return () => {
             console.log("unmount!!!!!!!!!!!!!!!!!")
         }
+
     }, [username])
 
 
-    function getBoardList(){
-        axios.get(url)
-            .then((res) => {
-                const data = res.data
-                console.log("SUCCESS TO READ USER BOARD")
+    async function getBoardList(){
+        const res = await axios.get(url)
+        const data = res.data
+        console.log("SUCCESS TO READ USER BOARD")
 
 
-                getFileList(data.map(file => file.id))
+        // 파일 불러오기
+        const boardIdList = data.map(d => d.id)
+        const usernameList = data.map(d => username)
+        await getFileList(boardIdList, usernameList)
 
-                setBoard(data)
-            }).catch((err) => {
-                console.log(`FALIED TO READ USER BOARD - ${err.response.status}`)
-                setError({
-                    status: err.response.data.status, 
-                    message: err.response.data.message
-                })
-        })
+        setBoard(data)
+
+        return res.status
     }
 
-    async function getFileList(postIdList){
+    async function getFileList(postIdList, usernameList){
         console.log(postIdList)
+        console.log(usernameList)
         const query = {
-            "postIdList": postIdList
+            "postIdList": postIdList,
+            "usernameList": usernameList
         }
 
         const res = await axios.get(urlfileread, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
