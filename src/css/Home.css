@@ -54,3 +54,17 @@
 
     object-fit: cover;
 }
+
+.boardTemplateFooterBtn{
+    display: inline-block;
+
+    background-color: white;
+    border: 0px;
+    padding: 0px;
+
+    width: 120px;
+    height: 25px;
+
+    font-size: 12pt;
+    text-align: left;
+}

@@ -176,6 +176,15 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likes_size, 
         }
     }
 
+    function getLikesSize(likesBtn, likes_size){
+        if(already_likes){ // 활성회원이 이미 좋아요를 누른 경우
+            return likesBtn ? likes_size: likes_size - 1
+        }else{ // 활성회원이 이전에 좋아요를 누르지 않은 경우
+            return likesBtn ? likes_size + 1: likes_size
+        }
+
+    }
+
     return (<div>
                 <div className = 'boardTemplateContainer'>
                     <div className='boardTemplateUsername'>
@@ -201,14 +210,14 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likes_size, 
                         {
                             activeUserId != undefined ?
                                 <div> 
-                                    <button onClick = {handleLikesBtn} disabled = {activeUserId == undefined}>
-                                        { likesBtn ? <span>❤️</span>: <span>🤍</span> } 좋아요 { already_likes == false && likesBtn ? likes_size + 1 : likes_size }
+                                    <button onClick = {handleLikesBtn} disabled = {activeUserId == undefined} className = 'boardTemplateFooterBtn'>
+                                        { likesBtn ? <span>❤️</span>: <span>🤍</span> } 좋아요 { getLikesSize(likesBtn, likes_size) }
                                     </button>
-                                    <span>💬 댓글 3</span>
+                                    <span className = 'boardTemplateFooterBtn'>💬 댓글 3</span>
                                 </div>:
                                 <div> 
-                                <span>🤍 좋아요 {likes_size}</span>
-                                <span>💬 댓글 3</span>
+                                <span className = 'boardTemplateFooterBtn'>🤍 좋아요 {likes_size}</span>
+                                <span className = 'boardTemplateFooterBtn'>💬 댓글 3</span>
                             </div>
                             
                         }
