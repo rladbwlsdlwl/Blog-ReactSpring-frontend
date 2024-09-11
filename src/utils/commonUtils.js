@@ -9,6 +9,10 @@ export function byteToBase64(byteurl){
 export function getErrorMsg(err){
     // default -> err {message: ""}
     // backend custom message -> err.response.data {message: "", status: int} OR err.response.data [{message: "", field: ""}, ...]  
+    
+    if(err.response == undefined){ // 응답 객체가 오지않음 = 네트워크 에러
+        return err.message
+    }
 
     if(Array.isArray(err.response.data)){ // 배열 파싱
         return err.response.data.map(data => `${data.field}: ${data.message}`).join("\n")
@@ -19,6 +23,10 @@ export function getErrorMsg(err){
 
 // 에러 코드(status) 파싱
 export function getErrorCode(err){
+    if(err.response == undefined){ // 응답 객체가 오지않음 = 네트워크 에러
+        return 500 // err.code
+    }
+
     return err.response.data.status || err.response.status
 }
 

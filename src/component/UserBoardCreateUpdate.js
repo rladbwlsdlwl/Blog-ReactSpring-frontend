@@ -28,6 +28,7 @@ export default function UserBoardCreateUpdate(){
 
 
     // 인풋 데이터
+    const beforeBoard = useRef({}) // 롤백 데이터 저장
     const [board, setBoard] = useState({})
     const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
@@ -61,6 +62,7 @@ export default function UserBoardCreateUpdate(){
         axios.get(urlupdate).then(res => {
             const data = res.data
 
+            beforeBoard.current = data
             setBoard(data)
 
         }).catch(err=>{
@@ -106,6 +108,7 @@ export default function UserBoardCreateUpdate(){
     return (
         <div className = "userBoardCreateUpdateContainer">
             <Toolbar
+                beforeBoard = {beforeBoard}
                 board = {board}
                 file = {file}
                 setFile = {setFile}
@@ -143,7 +146,7 @@ export default function UserBoardCreateUpdate(){
 
 
 // 게시판 전송 및 파일 조작(File to Base64, Binary data) 컨테이너
-const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, settingToken, getErrorCode, getErrorMsg}) => {
+const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, settingToken, getErrorCode, getErrorMsg, beforeBoard}) => {
 
     const navigate = useNavigate()
 
@@ -152,6 +155,47 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
         const files = Array.from(e.target.files)
         // console.log(files)
         
+
+        // 파일 검증 로직
+        // jpeg, png, jpg...
+        const isValidateFilesType = (files) =>{
+            for(let f of files){
+                if(!["image/png", "image/jpg", "image/jpeg", "image/heif"].includes(f.type)){
+                    return false
+                }
+            }
+
+            console.log("type passed!")
+            return true
+        }
+
+        // 단독 파일은 5MB 이하, 파일 총 30MB를 넘지 않아야 함
+        const isValidateFileSize = (files) =>{
+            let pSum = 0
+            for(let f of files){
+                pSum += f.size
+
+                if(f.size > 5000_000){
+                    return false
+                }
+            }
+
+            if(pSum > 30_000_000){
+                return false
+            }
+
+            
+            console.log("size passed!", pSum)
+            return true
+        }
+        
+
+        if(!isValidateFilesType(files) || !isValidateFileSize(files)){
+            window.alert("파일의 타입이 맞지 않거나 용량 초과입니다")
+
+            return 
+        }
+
 
         // File to Base64
         // 파일을 이진데이터 텍스트로 변환 - FileReader의 readAsDataURL
@@ -194,6 +238,50 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             const code = getErrorCode(err)
             if(code == 401){ // 토큰 만료 - JWT EXPIRED
                 settingToken("")
+            }else if(code == 500){ // 네트워크 에러 - 파일 용량 초과, 연결 끊어짐, 원자성으로 인한 롤백 수행 (파일 - 게시판)
+                
+                if(beforeBoard.current.id){ // 롤백 데이터가 존재하는 경우 - 되돌리기
+
+                    const header = {
+                        "Authentication": token
+                    }
+            
+                    const postData = {
+                        ...beforeBoard.current, 
+                        author: author
+                    }
+
+                    axios.patch(urlupdate, postData, {headers: header}).then(res => {
+                        const data = res.data
+                        
+                        console.log("롤백 성공! - ", data)
+                    }).catch(err => {
+                        
+                        console.log("롤백 실패! - ", err)
+                    })
+
+                }else if(beforeBoard.current.boardId){ // 롤백 데이터가 없는 경우 - 삭제
+                    
+                    const id = beforeBoard.current.boardId
+                    const urldelete = urlpath + `/${username}/${id}`
+                    
+                    const header = {
+                        "Authentication": token
+                    }
+            
+                    axios.delete(urldelete, {headers: header}).then(res => {
+                        const data = res
+                        
+                        console.log("롤백 성공! - ", data)
+                    }).catch(err => {
+                        
+                        console.log("롤백 실패! - ", err)
+                    })
+
+                }else{
+                    console.log("로직에 문제가 있는 상황입니다... 트랜젝션이 이루어지지 않음")
+                }
+            
             } 
 
             const msg = getErrorMsg(err)
@@ -230,6 +318,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             const res = await axios.post(urlwrite, postData, {headers: header})
             const data = res.data
 
+            beforeBoard.current = {boardId: data.id}
             console.log(data)
 
             await submitPostFile(data.id, isUpdatePost)
