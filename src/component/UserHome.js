@@ -8,11 +8,14 @@ import "../css/common.css"
 import "../css/UserHome.css"
 import { AuthContext } from "../context/AuthProvider"
 import { byteToBase64, getDateTemplate1, getErrorCode, getErrorMsg } from "../utils/commonUtils"
+import GoodsComment from "./common/GoodsComment"
 
 export default function UserHome(){
     const {username} = useParams()
     const url = urlpath + `/${username}`
     const urlfileread = url + "/file"
+    const urllikesGET = urlpath + "/likes"
+
 
     // 접속한 유저이름 확인
     const {gettingUsername} = useContext(AuthContext)
@@ -22,6 +25,7 @@ export default function UserHome(){
     const [board, setBoard] = useState([])
     const [boardListOrderButton, setBoardListOrderButton] = useState(1)
     const [previewFile, setPreviewFile] = useState([])
+    const [likes, setLikes] = useState({})
 
 
     // 목록열기
@@ -69,10 +73,22 @@ export default function UserHome(){
         const boardIdList = data.map(d => d.id)
         const usernameList = data.map(d => username)
         await getFileList(boardIdList, usernameList)
+        await getLikesList(boardIdList)
 
         setBoard(data)
 
         return res.status
+    }
+
+    async function getLikesList(boardIdList){
+        const query = {
+            boardId: boardIdList
+        }
+
+        const res = await axios.get(urllikesGET, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
+        const data = res.data
+        
+        setLikes(data)
     }
 
     async function getFileList(postIdList, usernameList){
@@ -145,6 +161,7 @@ export default function UserHome(){
             <div>
                 <BoardListMain 
                     board = {board}
+                    likes = {likes}
                     previewFile = {previewFile}
                     username = {username}
                     boardListOrderButton = {boardListOrderButton}
@@ -155,7 +172,7 @@ export default function UserHome(){
     )
 }
 
-const BoardListMain = ({board, previewFile, boardListOrderButton, setBoardListOrderButton, username}) => {
+const BoardListMain = ({board, previewFile, likes, boardListOrderButton, setBoardListOrderButton, username}) => {
     // 이미지 경로 반환
     const imageUrl = (postId) =>{
         const data = previewFile.filter(file => file.postId == postId)
@@ -178,6 +195,7 @@ const BoardListMain = ({board, previewFile, boardListOrderButton, setBoardListOr
                 <div>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdTitle">{board[idx].title}</div></Link>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdContents"> {board[idx].contents} </div></Link>
+                    <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdReaction"> <GoodsComment likeslist = {likes[board[idx].id]} /></div></Link>
                 </div>
             </li>)
 

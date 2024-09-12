@@ -7,6 +7,7 @@ import "../css/common.css"
 import "../css/Home.css"
 import qs from "qs"
 import { byteToBase64, getErrorCode, getErrorMsg } from '../utils/commonUtils';
+import GoodsComment from './common/GoodsComment';
 
 export default function Home(){
     /*
@@ -114,76 +115,10 @@ export default function Home(){
     )
 }
 
-const BoardTemplate = ({title, contents, username, id, previewFile, likes_size, already_likes, getUserInfo, token, url, activeUserId}) => {
+const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, getUserInfo, token, url, activeUserId}) => {
     const boardpath = `${username}/${id}`
     const userpath = `${username}`
 
-
-    const [likesBtn, setLikesBtn] = useState(already_likes)
-
-
-    function handleLikesBtn(e){
-        submitLikesBtn(!likesBtn).then((code) => {
-            
-            console.log(code)
-        
-        }).catch(err => {
-            console.log(err)
-            const code = getErrorCode(err)
-
-            if(code == 401){ // UNAUTHORIZED 토큰 권한 만료!
-                getUserInfo()
-            }
-
-            const msg = getErrorMsg(err)
-            console.log(msg)
-
-        })
-
-        console.log("버튼 클릭!!")
-        setLikesBtn(!likesBtn)
-    }
-
-    async function submitLikesBtn(isPostLike){
-        const header = {
-            "Authentication": token
-        }
-        const query = {
-            userId: activeUserId
-        }
-
-        const postData = {
-            boardId: id,
-            author: activeUserId
-        }
-
-        const urllikes = url + `/likes/${id}`
-
-        if(isPostLike){
-
-            const res = await axios.post(urllikes, postData, {headers: header})
-
-            const data = res.data
-            
-            return res.status
-
-        }else{
-
-            const res = await axios.delete(urllikes, {headers: header, params: query})
-            
-            return res.status
-
-        }
-    }
-
-    function getLikesSize(likesBtn, likes_size){
-        if(already_likes){ // 활성회원이 이미 좋아요를 누른 경우
-            return likesBtn ? likes_size: likes_size - 1
-        }else{ // 활성회원이 이전에 좋아요를 누르지 않은 경우
-            return likesBtn ? likes_size + 1: likes_size
-        }
-
-    }
 
     return (<div>
                 <div className = 'boardTemplateContainer'>
@@ -207,20 +142,14 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likes_size, 
                         </Link>
                     </div>
                     <div>
-                        {
-                            activeUserId != undefined ?
-                                <div> 
-                                    <button onClick = {handleLikesBtn} disabled = {activeUserId == undefined} className = 'boardTemplateFooterBtn'>
-                                        { likesBtn ? <span>❤️</span>: <span>🤍</span> } 좋아요 { getLikesSize(likesBtn, likes_size) }
-                                    </button>
-                                    <span className = 'boardTemplateFooterBtn'>💬 댓글 3</span>
-                                </div>:
-                                <div> 
-                                <span className = 'boardTemplateFooterBtn'>🤍 좋아요 {likes_size}</span>
-                                <span className = 'boardTemplateFooterBtn'>💬 댓글 3</span>
-                            </div>
-                            
-                        }
+                        <GoodsComment
+                            likeslist = {likeslist}
+                            getUserInfo = {getUserInfo}
+                            token = {token} 
+                            urllikes = {url+`/likes/${id}`} 
+                            activeUserId = {activeUserId}
+                            id = {id}
+                        />
                     </div>
                 </div>
                 <hr />
@@ -237,16 +166,6 @@ const BoardList = ({board, previewFile, likes, activeUserId, getUserInfo, token,
         return byteToBase64(data.map(d => d.file))
     }
 
-    function getAlreadyLikes(data){
-        // [{boardId, author}, ...]
-        for(let likes of data){
-            if(likes.author == activeUserId) return true
-        }
-
-        return false
-    }
-
-
     return (
         <table className='boardListTableContainer'>
             <thead />
@@ -260,8 +179,7 @@ const BoardList = ({board, previewFile, likes, activeUserId, getUserInfo, token,
                         id = {data.id}
 
                         previewFile = {getPreviewFile(data.id)}
-                        likes_size = {likes[data.id].length}
-                        already_likes = {getAlreadyLikes(likes[data.id])}
+                        likeslist = {likes[data.id]}
                         getUserInfo = {getUserInfo}
                         token = {token}
                         url = {url}

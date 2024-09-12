@@ -117,4 +117,12 @@
     font-weight: 300;
     word-wrap: break-word;
     /* text-overflow: ellipsis; */
+    height: 155px;
+    overflow: hidden;
+}
+
+.boardListMainTdReaction{
+    height: 50px;
+    display: flex;
+    align-items: center;
 }

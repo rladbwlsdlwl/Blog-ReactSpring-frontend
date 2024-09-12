@@ -8,16 +8,20 @@ import { byteToBase64, getDateTemplate2, getErrorCode, getErrorMsg } from "../ut
 import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 import "../css/UserBoard.css"
+import GoodsComment from "./common/GoodsComment"
 
 export default function UserBoard(){
     const {username, id} = useParams()
     const url = urlpath + `/${username}/${id}`
     const urlfile = urlpath + `/${username}/file/${id}`
+    const urllikesGET = urlpath + `/likes`
+    const urllikes = urlpath + `/likes/${id}`
 
 
     // 활성 회원 불러오기
-    const { gettingUsername, gettingToken, settingToken } = useContext(AuthContext)
+    const { gettingUsername, gettingUserId, getUserInfo, gettingToken, settingToken } = useContext(AuthContext)
     const activeUsername = gettingUsername()
+    const activeUserId = gettingUserId()
 
     const token = gettingToken()
 
@@ -26,54 +30,65 @@ export default function UserBoard(){
     const [board, setBoard] = useState({})
     const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
+    const [likes, setLikes] = useState({})
 
     const [error, setError] = useState(null)
 
 
     useEffect(() => {
+        // 병렬 처리 - 동시 호출
+        Promise.all([
+            getBoard(),
+            getFileList(),
+            getLikes()
+        ]).catch(err => {
+            console.log(err)
 
-        getBoard()
-        getFileList()
+            const code = getErrorCode(err)
+            const errmsg = getErrorMsg(err)
+            setError({
+                status: code, 
+                message: errmsg
+            })
+        })
 
     }, [])
 
+    // 좋아요 불러오기
+    async function getLikes(){
+        const query = {
+            boardId: id 
+        }
+
+        const res = await axios.get(urllikesGET, {params: query})
+        const data = res.data
+
+        console.log(data)
+        setLikes(data)
+    }
 
     // 이미지 파일 불러오기
-    function getFileList(){
-        axios.get(urlfile).then(res => {
-            const data = res.data
-            console.log(data)
-            
-            setFile(data.map(data => {
-                return {
-                    name: data.originalFilename,
-                    ...data
-                }
-            }))
-            setPreviewFile(data.map(data => byteToBase64(data.file)))
-        }).catch(err => {
+    async function getFileList(){
+        const res = await axios.get(urlfile)
+        const data = res.data
 
-            console.log(err)
+        setFile(data.map(data => {
+            return {
+                name: data.originalFilename,
+                ...data
+            }
+        }))
 
-        })
-
+        setPreviewFile(data.map(data => byteToBase64(data.file)))
     }
 
 
     // 게시판 불러오기
-    function getBoard(){
-        axios.get(url).then(res => {
-                const data = res.data 
+    async function getBoard(){
+        const res = await axios.get(url)
+        const data = res.data
 
-                setBoard(res.data)
-            }).catch((err) => {
-
-                setError({
-                    status: err.response.data.status, 
-                    message: err.response.data.message
-                })
-
-        })
+        setBoard(data)
     }
 
 
@@ -117,6 +132,17 @@ export default function UserBoard(){
                 board = {board}
                 disabled = {true}
             />
+
+            {
+                likes[id] && <GoodsComment
+                likeslist = {likes[id]}
+                getUserInfo = {getUserInfo}
+                token = {token} 
+                urllikes = {urllikes} 
+                activeUserId = {activeUserId}
+                id = {id}
+            />
+            }
 
         </div>
         
