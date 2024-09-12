@@ -22,7 +22,6 @@ export default function UserBoard(){
     const { gettingUsername, gettingUserId, getUserInfo, gettingToken, settingToken } = useContext(AuthContext)
     const activeUsername = gettingUsername()
     const activeUserId = gettingUserId()
-
     const token = gettingToken()
 
 
@@ -110,6 +109,7 @@ export default function UserBoard(){
                     activeUsername={activeUsername}
                     id = {id}
                     urlBoardDelete = {url}
+                    urlFileDelete = {urlfile}
                     token = {token}
                     settingToken = {settingToken}
                     getErrorCode = {getErrorCode}
@@ -150,7 +150,7 @@ export default function UserBoard(){
     
 }
 
-const PostToolBar = ({activeUsername, id, urlBoardDelete, token, settingToken, getErrorCode, getErrorMsg}) => {
+const PostToolBar = ({activeUsername, id, urlBoardDelete, urlFileDelete, token, settingToken, getErrorCode, getErrorMsg}) => {
     const navigate = useNavigate()
 
     // setting button
@@ -190,6 +190,7 @@ const PostToolBar = ({activeUsername, id, urlBoardDelete, token, settingToken, g
         }
 
         await axios.delete(urlBoardDelete, {headers: header})
+        await axios.delete(urlFileDelete, {headers: header})
     }
 
 
