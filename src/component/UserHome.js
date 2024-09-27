@@ -15,7 +15,7 @@ export default function UserHome(){
     const url = urlpath + `/${username}`
     const urlfileread = url + "/file"
     const urllikesGET = urlpath + "/likes"
-
+    const urlcommentsGET = urlpath + "/comments"
 
     // 접속한 유저이름 확인
     const {gettingUsername} = useContext(AuthContext)
@@ -26,6 +26,7 @@ export default function UserHome(){
     const [boardListOrderButton, setBoardListOrderButton] = useState(1)
     const [previewFile, setPreviewFile] = useState([])
     const [likes, setLikes] = useState({})
+    const [comments, setComments] = useState({})
 
 
     // 목록열기
@@ -74,10 +75,22 @@ export default function UserHome(){
         const usernameList = data.map(d => username)
         await getFileList(boardIdList, usernameList)
         await getLikesList(boardIdList)
+        await getCommentsList(boardIdList)
 
         setBoard(data)
 
         return res.status
+    }
+
+    async function getCommentsList(boardIdList) {
+        const param = {
+            boardId: boardIdList
+        }
+
+        const res = await axios.get(urlcommentsGET, {params: param, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
+        const data = res.data
+
+        setComments(data)
     }
 
     async function getLikesList(boardIdList){
@@ -163,6 +176,7 @@ export default function UserHome(){
                     board = {board}
                     likes = {likes}
                     previewFile = {previewFile}
+                    comments = {comments}
                     username = {username}
                     boardListOrderButton = {boardListOrderButton}
                     setBoardListOrderButton = {setBoardListOrderButton}
@@ -172,7 +186,7 @@ export default function UserHome(){
     )
 }
 
-const BoardListMain = ({board, previewFile, likes, boardListOrderButton, setBoardListOrderButton, username}) => {
+const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comments, setBoardListOrderButton, username}) => {
     // 이미지 경로 반환
     const imageUrl = (postId) =>{
         const data = previewFile.filter(file => file.postId == postId)
@@ -195,7 +209,7 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, setBoar
                 <div>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdTitle">{board[idx].title}</div></Link>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdContents"> {board[idx].contents} </div></Link>
-                    <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdReaction"> <GoodsComment likeslist = {likes[board[idx].id]} /></div></Link>
+                    <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdReaction"> <GoodsComment likeslist = {likes[board[idx].id]} commentslist = {comments[board[idx].id]}/></div></Link>
                 </div>
             </li>)
 

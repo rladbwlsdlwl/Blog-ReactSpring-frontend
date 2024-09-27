@@ -19,7 +19,7 @@ export default function BoardList({board, setBoard, disabled = false}){
                 
             </textarea>
 
-            <hr />
+            <hr className = "boardListLine"/>
 
             <textarea name = "contents" value = {board.contents} onChange = { handleTextarea } maxLength={999998} className="boardListContents" disabled = {disabled}>
                 

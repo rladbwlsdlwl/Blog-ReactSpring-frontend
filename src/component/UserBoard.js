@@ -16,13 +16,12 @@ export default function UserBoard(){
     const urlfile = urlpath + `/${username}/file/${id}`
     const urllikesGET = urlpath + `/likes`
     const urllikes = urlpath + `/likes/${id}`
+    const urlcommentsGET = urlpath + "/comments"
 
 
     // 활성 회원 불러오기
     const { gettingUsername, gettingUserId, getUserInfo, gettingToken, settingToken } = useContext(AuthContext)
-    const activeUsername = gettingUsername()
-    const activeUserId = gettingUserId()
-    const token = gettingToken()
+    const [activeUserId, activeUsername, token] = [gettingUserId(), gettingUsername(), gettingToken()]
 
 
     // 데이터 로드
@@ -30,6 +29,7 @@ export default function UserBoard(){
     const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
     const [likes, setLikes] = useState({})
+    const [comments, setComments] = useState({})
 
     const [error, setError] = useState(null)
 
@@ -39,7 +39,8 @@ export default function UserBoard(){
         Promise.all([
             getBoard(),
             getFileList(),
-            getLikes()
+            getLikes(),
+            getComments()
         ]).catch(err => {
             console.log(err)
 
@@ -52,6 +53,19 @@ export default function UserBoard(){
         })
 
     }, [])
+
+    // 댓글 불러오기
+    async function getComments() {
+        const param = {
+            boardId: id
+        }
+
+        const res = await axios.get(urlcommentsGET, {params: param})
+        const data = res.data
+
+        console.log(data)
+        setComments(data)
+    }
 
     // 좋아요 불러오기
     async function getLikes(){
@@ -133,16 +147,18 @@ export default function UserBoard(){
                 disabled = {true}
             />
 
-            {
-                likes[id] && <GoodsComment
-                likeslist = {likes[id]}
+            <GoodsComment
+                likeslist = {likes[id] || []}
+                commentslist = {comments[id] || []}
                 getUserInfo = {getUserInfo}
                 token = {token} 
+                username = {username}
                 urllikes = {urllikes} 
+                urlcomments = {urlcommentsGET}
                 activeUserId = {activeUserId}
+                activeUsername = {activeUsername}
                 id = {id}
             />
-            }
 
         </div>
         

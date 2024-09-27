@@ -31,6 +31,7 @@ export default function Home(){
     const [board, setBoardList] = useState([])
     const [previewFile, setPreviewFile] = useState([])
     const [likes, setLikes] = useState({})
+    const [comments, setComments] = useState({})
 
     useEffect(() => {
         
@@ -58,16 +59,17 @@ export default function Home(){
 
         // 파일 불러오기
         // 좋아요 불러오기
+        // 댓글 불러오기
         const boardIdList = data.map(d => d.id)
         const usernameList = data.map(d => d.username)
         await readFileList(boardIdList, usernameList)
         await readLikesList(boardIdList)
+        await readCommentsList(boardIdList)
 
         setBoardList(data)
 
         return res.status
     }
-
 
     // 파일 읽기
     async function readFileList(boardIdList, usernameList){
@@ -97,6 +99,20 @@ export default function Home(){
         console.log(data)
         setLikes(data)
     }
+    
+    // 댓글 읽기
+    async function readCommentsList(boardIdList){
+        const urlcomments = url + "/comments"
+        const param = {
+            boardId: boardIdList
+        }
+
+        const res = await axios.get(urlcomments, {params: param, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
+        const data = res.data
+    
+        setComments(data)
+    }
+
 
 
     return (
@@ -105,6 +121,7 @@ export default function Home(){
                 board = {board} 
                 previewFile = {previewFile}
                 likes = {likes}
+                comments = {comments}
                 
                 activeUserId = {gettingUserId()}
                 getUserInfo = {getUserInfo}
@@ -115,7 +132,7 @@ export default function Home(){
     )
 }
 
-const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, getUserInfo, token, url, activeUserId}) => {
+const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, commentslist,  getUserInfo, token, url, activeUserId}) => {
     const boardpath = `${username}/${id}`
     const userpath = `${username}`
 
@@ -142,14 +159,12 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, g
                         </Link>
                     </div>
                     <div>
-                        <GoodsComment
-                            likeslist = {likeslist}
-                            getUserInfo = {getUserInfo}
-                            token = {token} 
-                            urllikes = {url+`/likes/${id}`} 
-                            activeUserId = {activeUserId}
-                            id = {id}
-                        />
+                        <Link to = {boardpath}>
+                            <GoodsComment
+                                likeslist = {likeslist}
+                                commentslist = {commentslist}
+                            />
+                        </Link>
                     </div>
                 </div>
                 <hr />
@@ -159,7 +174,7 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, g
 }
 
 
-const BoardList = ({board, previewFile, likes, activeUserId, getUserInfo, token, url}) =>{
+const BoardList = ({board, previewFile, likes, comments, activeUserId, getUserInfo, token, url}) =>{
     function getPreviewFile(postId){
         const data =  previewFile.filter(data => data.postId == postId)
 
@@ -180,6 +195,7 @@ const BoardList = ({board, previewFile, likes, activeUserId, getUserInfo, token,
 
                         previewFile = {getPreviewFile(data.id)}
                         likeslist = {likes[data.id]}
+                        commentslist = {comments[data.id]}
                         getUserInfo = {getUserInfo}
                         token = {token}
                         url = {url}

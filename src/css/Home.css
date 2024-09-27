@@ -68,3 +68,8 @@
     font-size: 12pt;
     text-align: left;
 }
+
+.boardTemplateFooterBtn:disabled{
+    opacity: 1;
+    color: black;
+}

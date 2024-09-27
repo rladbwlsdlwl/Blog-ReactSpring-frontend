@@ -4,6 +4,7 @@
 }
 
 .boardListTitle, .boardListContents{
+    min-width: 1000px;
     width: 100%;
     box-sizing: border-box;
     padding: 20px;
@@ -16,9 +17,11 @@
 
 .boardListContents{
     min-height: 1000px;
-    
 }
 
+.boardListLine{
+    min-width: 1000px;
+}
 .fileListContainer{
     margin: 20px 0px;
 }
@@ -48,4 +51,90 @@
 
 .displayNone{
     display: none;
+}
+
+.commentsTemplateContainer{
+    box-sizing: border-box;
+    border: 1px solid gray;
+    padding: 40px;
+
+    min-width: 1000px;
+}
+
+.commentsTemplateInputContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.commentsTemplateInput{
+    min-width: 650px;
+    width: 90%;
+    min-height: 80px;
+    padding: 20px;
+
+    resize: vertical;
+}
+
+.commentsTemplateButton{
+    width: 122.13px;
+    height: 122.13px;
+    padding: 20px;
+}
+
+.commentsTemplateUListContainer{
+    list-style-type: none;
+    padding: 0px;
+}
+
+.commentsTemplateListContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.commentsTemplateList{
+    padding: 10px;
+}
+
+.commentsTemplateListDate{
+    font-size: 10pt;
+    color: gray;
+}
+
+.commentsTemplateListContents{
+    resize: none;
+    border: 0px;
+    font-family: initial;
+    font-size: initial;
+
+    width: 100%;
+    min-height: 50px;
+    
+}
+
+.commentsTemplateListContents:focus{
+    outline: none;
+}
+
+.commentsTemplateListChild{
+    margin-left: 80px;
+}
+
+.commentsTemplateListInput{
+
+}
+
+.commentsTemplateListReplyInput{
+    margin-left: 80px;
+}
+
+.notVisible{
+    /* visibility: hidden; */
+    display: none;
+}
+
+.commentsOptionButton{
+    border: 0px;
+    background-color: white;
+
+    font-size: 20pt;
 }
