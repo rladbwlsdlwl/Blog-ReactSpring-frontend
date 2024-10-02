@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useContext, useState } from 'react'
 import { urlpath } from '../utils/apiUtils'
 import googleImg from "../images/google.png"
+import naverImg from "../images/naver.png"
 import "../css/login.css"
 import "../css/common.css"
 import { Link } from 'react-router-dom'
@@ -10,6 +11,7 @@ import { getErrorMsg } from '../utils/commonUtils'
 
 export default function Login(){
     const googleurl = "http://localhost:8080/oauth2/authorization/google"
+    const naverurl = "http://localhost:8080/oauth2/authorization/naver"
     const url = urlpath + "/signin"
 
     const { settingToken } = useContext(AuthContext)
@@ -101,7 +103,8 @@ export default function Login(){
 
                 {/* 소셜 로그인 버튼 */}
                 <div className='inputOuterBox'>
-                    <img src = {googleImg} onClick = {() => window.location.href = googleurl} />
+                    <img src = {googleImg} onClick = {() => window.location.href = googleurl} className = "socialLoginImage"/>
+                    <img src = {naverImg} onClick = {() => window.location.href = naverurl} className = "socialLoginImage"/>
                 </div>
             </div>
 

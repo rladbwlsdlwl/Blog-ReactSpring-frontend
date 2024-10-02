@@ -36,3 +36,8 @@
     width: 100%;
     text-align: center;
 }
+
+.socialLoginImage{
+    width: 45%;
+    margin: 0px 10px;
+}
