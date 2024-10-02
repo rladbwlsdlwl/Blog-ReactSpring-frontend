@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import axios from "axios"
 import { getErrorCode, getErrorMsg, getDateTemplate2 } from "../../utils/commonUtils"
 import "../../css/common.css"
@@ -227,6 +227,22 @@ const CommentsOption = ({ activeUsername, username, authorName, commentsId, setC
     )
 }
 
+const CommentsTemplateContentsTextarea = ({contents}) => {
+    const textareaRef = useRef(null)
+
+    useEffect(() => {
+        const textarea = textareaRef.current
+
+        textarea.style.height = "auto"
+        textarea.style.height = `${textarea.scrollHeight}px`
+
+    }, [contents])
+
+    return (
+        <textarea ref = {textareaRef} className = "commentsTemplateList commentsTemplateListContents" value = {contents} readOnly/>
+    )
+}
+
 const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeUsername, getUserInfo, token, username, urlcomments, id, getDateTemplate2 }) => {
     // 답글 인덱스 - CommentInput visible / hidden
     const [commentsReplyId, setCommentsReplyId] = useState(-1)
@@ -244,7 +260,7 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
                 // 본 댓글 및 댓글 수정
                 tmp.push(<div className = "commentsTemplateList"> {comm.name} </div>)
                 tmp.push(<div className = "commentsTemplateList commentsTemplateListDate"> {getDateTemplate2(comm.created_at)} </div>)
-                tmp.push(<textarea className = "commentsTemplateList commentsTemplateListContents" value = {comm.contents} readOnly/>)
+                tmp.push(<CommentsTemplateContentsTextarea contents = {comm.contents} />)
                 commlist.push(commentsUpdateId != comm.id ?
                 <li className = {target != 0 ? "commentsTemplateListContainer commentsTemplateListChild": "commentsTemplateListContainer"}>
                     <div>
