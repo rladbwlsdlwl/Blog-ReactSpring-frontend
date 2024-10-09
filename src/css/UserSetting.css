@@ -1,0 +1,38 @@
+.userSettingContainer{
+    display: flex;
+    justify-content: center;
+}
+
+.userSettingBox{
+    border: 1px gray solid;
+
+    padding: 50px;
+}
+
+.userSettingUl{
+    list-style-type: none;
+    padding: 0px;
+}
+
+.userSettingUl > li {
+    margin: 30px 0px;
+}
+
+.userSettingUl > li > input{
+    width: 100%;
+    padding: 20px;
+
+    box-sizing: border-box;
+    margin-bottom: 5px;
+}
+
+.userSettingBtn{
+    width: 100%;
+    padding: 20px;
+
+    margin-bottom: 5px;
+}
+
+.userSettingBtn:hover{
+    color: red;
+}
