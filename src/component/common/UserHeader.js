@@ -8,7 +8,7 @@ export default function UserHeader(){
 
     console.log(username)
     console.log(email)
-    if(username == undefined){
+    if(username == ""){
         return (
             <div style = {userHeaderOuter}>
                 <div style = {userHeaderInner}>

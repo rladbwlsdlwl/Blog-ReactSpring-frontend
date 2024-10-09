@@ -10,7 +10,11 @@ function AuthProvider({children}){
         토큰이 만료되거나 이상하면 접근 막기
     */    
     const authheader = useRef(localStorage.getItem("Authentication"))
-    const [user, setUser] = useState({})
+    const [user, setUser] = useState({
+        id: "",
+        username: "",
+        email: ""
+    })
 
     useEffect(() => {
 
@@ -43,7 +47,11 @@ function AuthProvider({children}){
             console.log(err)
             removeToken()
 
-            setUser({})
+            setUser({
+                id: "",
+                username: "",
+                email: ""
+            })
         }
         
     }
@@ -58,15 +66,15 @@ function AuthProvider({children}){
     }  
 
     function gettingUserEmail(){
-        return user && user.email 
+        return user.email 
     }
 
     function gettingUsername(){
-        return user && user.username
+        return user.username
     }
 
     function gettingUserId(){
-        return user && user.id
+        return user.id
     }
 
     
