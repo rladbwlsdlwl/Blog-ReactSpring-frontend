@@ -1,1 +1,1 @@
-export const urlpath = "http://localhost:8080/api"
+export const urlpath = "https://port-0-blog-reactspring-backend-prod-m2k9xlt5e613b758.sel4.cloudtype.app/api"
