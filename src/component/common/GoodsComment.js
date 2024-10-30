@@ -450,7 +450,7 @@ const GoodsComponent = ({ activeUserId, likeslist, already_likes, likesBtn, setL
 
 
     return (
-        <button onClick = { handleLikesBtn } disabled = {activeUserId == undefined} className = 'boardTemplateFooterBtn'>
+        <button onClick = { handleLikesBtn } disabled = {activeUserId == ""} className = 'boardTemplateFooterBtn'>
                 { likesBtn ? <span>❤️</span>: <span>🤍</span> } 좋아요 { getLikesSize(likesBtn, likeslist.length) }
         </button>
     )
