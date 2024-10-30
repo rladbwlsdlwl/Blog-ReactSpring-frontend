@@ -10,8 +10,8 @@ import { AuthContext } from '../context/AuthProvider'
 import { getErrorMsg } from '../utils/commonUtils'
 
 export default function Login(){
-    const googleurl = "http://localhost:8080/oauth2/authorization/google"
-    const naverurl = "http://localhost:8080/oauth2/authorization/naver"
+    const googleurl = "https://port-0-blog-reactspring-backend-prod-m2k9xlt5e613b758.sel4.cloudtype.app/oauth2/authorization/google"
+    const naverurl = "https://port-0-blog-reactspring-backend-prod-m2k9xlt5e613b758.sel4.cloudtype.app/oauth2/authorization/naver"
     const url = urlpath + "/signin"
 
     const { settingToken } = useContext(AuthContext)
