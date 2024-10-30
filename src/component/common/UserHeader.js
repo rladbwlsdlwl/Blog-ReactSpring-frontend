@@ -6,8 +6,8 @@ export default function UserHeader(){
     const {gettingUserEmail, gettingUsername} = useContext(AuthContext)
     const [username, email] = [gettingUsername(), gettingUserEmail()]
 
-    console.log(username)
-    console.log(email)
+    // console.log(username)
+    // console.log(email)
     if(username == ""){
         return (
             <div style = {userHeaderOuter}>
@@ -29,7 +29,7 @@ export default function UserHeader(){
     return (
         <div style = {userHeaderOuter}>
             <div style = {userHeaderInner}>
-                <Link to = { `/${username}/setting`} className="link">
+                <Link to = { `/auth/setting`} className="link">
                     {username} 님
                 </Link>  
             </div>

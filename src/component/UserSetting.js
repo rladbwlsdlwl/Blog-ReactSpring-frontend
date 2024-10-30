@@ -5,18 +5,16 @@ import axios from "axios"
 import { getErrorCode, getErrorMsg } from "../utils/commonUtils"
 import Error from "./Error"
 import "../css/UserSetting.css"
-import { useParams } from "react-router-dom"
 import qs from "qs"
 
 export default function UserSetting(){
-    const {username} = useParams()
 
-    const urllogout = urlpath + "/logout"
-    const urlsetting = urlpath + `/${username}/setting`
-
-    const { gettingToken, settingToken, getUserInfo, gettingUserEmail, gettingUsername } = useContext(AuthContext)
-    const [token, name, email] = [gettingToken(), gettingUsername(), gettingUserEmail()]    
+    const { gettingToken, settingToken, getUserInfo, gettingUserEmail, gettingUsername, gettingUserPasswordIsNull } = useContext(AuthContext)
+    const [token, name, email, passwordIsNull] = [gettingToken(), gettingUsername(), gettingUserEmail(), gettingUserPasswordIsNull()]    
     
+    const urllogout = urlpath + "/logout"
+    const urlsetting = urlpath + `/${name}/setting`
+
     const [error, setError] = useState(false)
     const [passwordErrorMsg, setPasswordErrorMsg] = useState("")
     const [user, setUser] = useState({
@@ -27,6 +25,10 @@ export default function UserSetting(){
         re_change_password: "" // 패스워드
     }) // input
 
+    useEffect(() => {
+
+        console.log("변화감지!!!")
+    }, [gettingToken])
 
     // 로그아웃 핸들러
     function handlelogout(e){
@@ -183,10 +185,11 @@ export default function UserSetting(){
             q.push("changeEmail")
             d["email"] = user.email
         }
-        if(user.curr_password != ""){
+        if(user.change_password != ""){
             q.push("changePassword")
-            d["originalPassword"] = user.curr_password
             d["password"] = user.change_password
+
+            if(!passwordIsNull) d["originalPassword"] = user.curr_password 
         }
         
         return {
@@ -196,7 +199,7 @@ export default function UserSetting(){
     }
 
 
-    if(error || name == "" || name != username){
+    if(error || name == ""){
         return (
             <Error 
                 status = "400"
@@ -223,7 +226,7 @@ export default function UserSetting(){
                     </li>
                     <li>
                         <div>비밀번호</div>
-                        <input type = "password" placeholder = "기존 비밀번호를 입력하세요" name = "curr_password" value = {user.curr_password} onChange = {handleSetting}></input>
+                        <input type = "password" placeholder = "기존 비밀번호를 입력하세요" name = "curr_password" value = {user.curr_password} onChange = {handleSetting} disabled = {passwordIsNull}></input>
                         <input type = "password" placeholder = "변경할 비밀번호를 입력하세요" name = "change_password" value = {user.change_password} onChange = {handleSetting}></input>
                         <input type = "password" placeholder = "다시 입력하세요" name = "re_change_password" value = {user.re_change_password} onChange = {handleSetting}></input>
                     </li>

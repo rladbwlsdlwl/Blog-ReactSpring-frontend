@@ -13,7 +13,8 @@ function AuthProvider({children}){
     const [user, setUser] = useState({
         id: "",
         username: "",
-        email: ""
+        email: "",
+        isNotSettingPassword: false
     })
 
     useEffect(() => {
@@ -77,8 +78,11 @@ function AuthProvider({children}){
         return user.id
     }
 
+    function gettingUserPasswordIsNull(){
+        return user.isNotSettingPassword
+    }
     
-    const value = {gettingToken, settingToken, gettingUserEmail, gettingUsername, gettingUserId, getUserInfo}
+    const value = {gettingToken, settingToken, gettingUserEmail, gettingUsername, gettingUserId, gettingUserPasswordIsNull, getUserInfo}
 
     return (
         <AuthContext.Provider value = {value}>{children}</AuthContext.Provider>

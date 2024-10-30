@@ -24,9 +24,9 @@ function App() {
           <Route path = ":username" element = {<UserHome />}></Route>
           <Route path = ":username/new" element = {<UserBoardCreateUpdate />}></Route> 
           <Route path = ":username/:id" element = {<UserBoard />}></Route>
-          <Route path = ":username/setting" element = {<UserSetting />}></Route>
         </Route>
 
+        <Route path = "/auth/setting" element = {<UserSetting />}></Route>
         <Route path = "/auth/login" element = {<Login />}></Route>
         <Route path = "/auth/signup" element = {<Signup />}></Route>
         <Route path = "/*" element = {<Error />}></Route>
