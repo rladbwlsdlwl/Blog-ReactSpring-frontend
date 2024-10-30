@@ -24,7 +24,7 @@ export default function Home(){
     // 리다이렉션 후 token 노출 방지
     function settingUrlQueryParam(token){
         settingToken(token)
-        window.location.href = "http://localhost:3000"
+        window.location.href = "https://thisblogproject.vercel.app"
     }
 
     const url = urlpath
