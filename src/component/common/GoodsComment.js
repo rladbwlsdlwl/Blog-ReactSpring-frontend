@@ -159,8 +159,8 @@ const CommentsInput = ({ commentsList, setCommentsList, activeUserId, activeUser
 
     return (
         <div className = {`commentsTemplateInputContainer ${className}`}>
-            <textarea name = "comments" value = {comments} onChange = {handleCommentsInput} disabled = {activeUserId == undefined} placeholder = {activeUserId == undefined ? "로그인 후 입력하세요": "댓글을 입력하세요"} className = "commentsTemplateInput"></textarea>
-            <input type = "button" onClick = {handleCommentsButton} disabled = {activeUserId == undefined} className = "commentsTemplateButton" value = "작성"></input>
+            <textarea name = "comments" value = {comments} onChange = {handleCommentsInput} disabled = {activeUserId == ""} placeholder = {activeUserId == "" ? "로그인 후 입력하세요": "댓글을 입력하세요"} className = "commentsTemplateInput"></textarea>
+            <input type = "button" onClick = {handleCommentsButton} disabled = {activeUserId == ""} className = "commentsTemplateButton" value = "작성"></input>
             {
                 update && <input type = "button" onClick = {() => setCommentsUpdateId(-1)} value = "취소"></input>
             }
@@ -249,7 +249,7 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
     // 댓글 수정 인덱스 - CommentInput visible / hidden
     const [commentsUpdateId, setCommentsUpdateId] = useState(-1)
 
-
+    console.log(commentsList)
     // 댓글 리스트
     function getCommentsList(target){
         const commlist = []
