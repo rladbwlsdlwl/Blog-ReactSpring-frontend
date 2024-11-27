@@ -133,7 +133,7 @@ const CommentsInput = ({ commentsList, setCommentsList, activeUserId, activeUser
 
             const commList = []
             for(let comm of commentsList){
-                if(comm.id == commentsId) commList.push({...comm, contents: comments})
+                if(comm.id == commentsId) commList.push({...comm, contents: data.contents, created_at: data.created_at})
                 else commList.push(comm)
             }
 
