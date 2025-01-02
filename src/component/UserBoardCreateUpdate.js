@@ -8,7 +8,7 @@ import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 
 import "../css/UserBoardCreateUpdate.css"
-import { byteToBase64, getErrorCode, getErrorMsg } from "../utils/commonUtils"
+import { getErrorCode, getErrorMsg } from "../utils/commonUtils"
 
 export default function UserBoardCreateUpdate(){
     const { username } = useParams()
@@ -44,11 +44,17 @@ export default function UserBoardCreateUpdate(){
         if(type == "write"){
             return 
         }else if(type == "update"){
-            // 게시판 불러오기
-            getBoardList() 
             
-            // 파일 불러오기 
-            getFileList()
+            Promise.all([
+                getBoardList(),
+                getFileList()
+            ]).catch(err => {
+                const code = getErrorCode(err)
+                const msg = getErrorMsg(err)
+
+                console.log(msg)
+                setError(true)
+            }) 
 
         }else{
             setError(true)
@@ -58,40 +64,32 @@ export default function UserBoardCreateUpdate(){
 
 
     // 게시판 불러오기
-    function getBoardList(){
-        axios.get(urlupdate).then(res => {
-            const data = res.data
+    async function getBoardList(){
+        const res = await axios.get(urlupdate)
 
-            beforeBoard.current = data
-            setBoard(data)
+        const data = res.data
 
-        }).catch(err=>{
-            console.log(err)
-            setError(true)
-        })
+        beforeBoard.current = data
+        setBoard(data)
     }
 
      // 파일 불러오기
-     function getFileList(){
-        axios.get(urlfile).then(res => {
-            const data = res.data
-            console.log(data)
+     async function getFileList(){
+        const res = await axios.get(urlfile)
 
-            // 바이너리 데이터 to File(Blob)
-            setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
-            setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - 파일 중복가능 (기존파일과 비교하여 파일 등록 예정)
+        const data = res.data
 
-            // 바이너리 데이터 to Base64
-            setPreviewFile(data.map(f => {
-                return byteToBase64(f.file)
-            }))
-        }).catch(err => {
+        // Text to File
+        setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
+        // Text
+        setPreviewFile(data)
+        
+        setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - 파일 중복가능 (기존파일과 비교하여 파일 등록 예정)
 
-            console.log(err)
-            setError(true)
-
-        })
-
+        // Text to Base64
+        // setPreviewFile(data.map(f => {
+        //     return byteToBase64(f.file)
+        // }))
     }
 
 
@@ -199,28 +197,36 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
 
         // File to Base64
         // 파일을 이진데이터 텍스트로 변환 - FileReader의 readAsDataURL
-        updatePreviewImage(files)
+        // updatePreviewImage(files)
         
+
+        // Blob(File) 타입으로 변환 - URL.createObjectURL
+        setPreviewFile([...previewFile, ...files.map(file => {
+            return {
+                file: file,
+                originalFilename: file.name
+            }
+        })])
         setFile([...file, ...files])
     }
 
 
     // setting - 파일 미리보기 이미지 
-    function updatePreviewImage(files){
+    // function updatePreviewImage(files){
         
-        files.forEach(f => {
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                const imglink = e.target.result
-                // console.log(imglink)
-                setPreviewFile((prev) => [...prev, imglink])
-            }
+    //     files.forEach(f => {
+    //         const reader = new FileReader()
+    //         reader.onload = (e) => {
+    //             const imglink = e.target.result
+    //             // console.log(imglink)
+    //             setPreviewFile((prev) => [...prev, imglink])
+    //         }
 
 
-            reader.readAsDataURL(f)
-        })
+    //         reader.readAsDataURL(f)
+    //     })
 
-    }
+    // }
 
     // 게시글 작성 핸들러
     function handleSubmitPost(){
@@ -306,7 +312,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             const res = await axios.patch(urlupdate, postData, {headers: header})
             const data = res.data
             
-            console.log(data)
+            // console.log(data)
 
             await submitPostFile(data.id, isUpdatePost)
 
@@ -319,7 +325,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             const data = res.data
 
             beforeBoard.current = {boardId: data.id}
-            console.log(data)
+            // console.log(data)
 
             await submitPostFile(data.id, isUpdatePost)
 

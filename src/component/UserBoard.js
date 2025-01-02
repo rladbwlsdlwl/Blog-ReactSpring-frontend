@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import Error from "./Error"
 import { AuthContext } from "../context/AuthProvider"
-import { byteToBase64, getDateTemplate2, getErrorCode, getErrorMsg } from "../utils/commonUtils"
+import { getDateTemplate2, getErrorCode, getErrorMsg, textToBlob } from "../utils/commonUtils"
 import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 import "../css/UserBoard.css"
@@ -26,7 +26,6 @@ export default function UserBoard(){
 
     // 데이터 로드
     const [board, setBoard] = useState({})
-    const [file, setFile] = useState([])
     const [previewFile, setPreviewFile] = useState([])
     const [likes, setLikes] = useState({})
     const [comments, setComments] = useState({})
@@ -85,14 +84,7 @@ export default function UserBoard(){
         const res = await axios.get(urlfile)
         const data = res.data
 
-        setFile(data.map(data => {
-            return {
-                name: data.originalFilename,
-                ...data
-            }
-        }))
-
-        setPreviewFile(data.map(data => byteToBase64(data.file)))
+        setPreviewFile(data)
     }
 
 
@@ -133,7 +125,6 @@ export default function UserBoard(){
             
             <FileList 
                 previewFile = {previewFile}
-                file = {file}
                 disabled = {true}
             />
 

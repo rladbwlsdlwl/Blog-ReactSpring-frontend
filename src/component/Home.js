@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 import "../css/common.css"
 import "../css/Home.css"
 import qs from "qs"
-import { byteToBase64, getErrorCode, getErrorMsg } from '../utils/commonUtils';
 import GoodsComment from './common/GoodsComment';
+import { textToBlob } from '../utils/commonUtils';
 
 export default function Home(){
     /*
@@ -56,17 +56,27 @@ export default function Home(){
         const res = await axios.get(url)
 
         const data = res.data
+        setBoardList(data)
+
 
         // 파일 불러오기
         // 좋아요 불러오기
         // 댓글 불러오기
         const boardIdList = data.map(d => d.id)
         const usernameList = data.map(d => d.username)
+        
+        // 동시호출, 비동기식, 병렬처리리
+        await Promise.all([
+            readFileList(boardIdList, usernameList),
+            readLikesList(boardIdList),
+            readCommentsList(boardIdList)
+        ])
+
+        /*
         await readFileList(boardIdList, usernameList)
         await readLikesList(boardIdList)
         await readCommentsList(boardIdList)
-
-        setBoardList(data)
+        */
 
         return res.status
     }
@@ -135,8 +145,7 @@ export default function Home(){
 const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, commentslist,  getUserInfo, token, url, activeUserId}) => {
     const boardpath = `${username}/${id}`
     const userpath = `${username}`
-
-
+    
     return (<div>
                 <div className = 'boardTemplateContainer'>
                     <div className='boardTemplateUsername'>
@@ -178,7 +187,13 @@ const BoardList = ({board, previewFile, likes, comments, activeUserId, getUserIn
     function getPreviewFile(postId){
         const data =  previewFile.filter(data => data.postId == postId)
 
-        return byteToBase64(data.map(d => d.file))
+        // return byteToBase64(data.map(d => d.file))
+        if(data.length == 0) return ""
+    
+        const file = data[0].file
+        const blob = textToBlob(file)
+
+        return URL.createObjectURL(blob)
     }
 
     return (
@@ -194,8 +209,8 @@ const BoardList = ({board, previewFile, likes, comments, activeUserId, getUserIn
                         id = {data.id}
 
                         previewFile = {getPreviewFile(data.id)}
-                        likeslist = {likes[data.id]}
-                        commentslist = {comments[data.id]}
+                        likeslist = {likes[data.id] || []}
+                        commentslist = {comments[data.id] || []}
                         getUserInfo = {getUserInfo}
                         token = {token}
                         url = {url}

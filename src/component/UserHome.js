@@ -7,7 +7,7 @@ import qs from "qs"
 import "../css/common.css"
 import "../css/UserHome.css"
 import { AuthContext } from "../context/AuthProvider"
-import { byteToBase64, getDateTemplate1, getErrorCode, getErrorMsg } from "../utils/commonUtils"
+import { getDateTemplate1, getErrorCode, getErrorMsg, textToBlob } from "../utils/commonUtils"
 import GoodsComment from "./common/GoodsComment"
 
 export default function UserHome(){
@@ -67,15 +67,17 @@ export default function UserHome(){
     async function getBoardList(){
         const res = await axios.get(url)
         const data = res.data
-        console.log("SUCCESS TO READ USER BOARD")
 
 
         // 파일 불러오기
         const boardIdList = data.map(d => d.id)
         const usernameList = data.map(d => username)
-        await getFileList(boardIdList, usernameList)
-        await getLikesList(boardIdList)
-        await getCommentsList(boardIdList)
+    
+        await Promise.all([
+            getFileList(boardIdList, usernameList),
+            getLikesList(boardIdList),
+            getCommentsList(boardIdList)
+        ])
 
         setBoard(data)
 
@@ -191,7 +193,13 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
     const imageUrl = (postId) =>{
         const data = previewFile.filter(file => file.postId == postId)
 
-        return byteToBase64(data.map(d => d.file))
+        // return byteToBase64(data.map(d => d.file))
+        if(data.length == 0) return ""
+        
+        const file = data[0].file
+        const blob = textToBlob(file)
+
+        return URL.createObjectURL(blob)
     }
 
     function getBoardListMain(){
@@ -209,7 +217,7 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
                 <div>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdTitle">{board[idx].title}</div></Link>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdContents"> {board[idx].contents} </div></Link>
-                    <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdReaction"> <GoodsComment likeslist = {likes[board[idx].id]} commentslist = {comments[board[idx].id]}/></div></Link>
+                    <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdReaction"> <GoodsComment likeslist = {likes[board[idx].id] || []} commentslist = {comments[board[idx].id] || []}/></div></Link>
                 </div>
             </li>)
 

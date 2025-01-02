@@ -4,7 +4,6 @@ import "../../css/common.css"
 export default function BoardList({board, setBoard, disabled = false}){
 
     function handleTextarea(e){
-        console.log(e)
         const {name, value} = e.target
 
         setBoard({

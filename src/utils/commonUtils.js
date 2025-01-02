@@ -1,8 +1,16 @@
 
 // 이미지 파일 미리보기 변환
-// Byte 바이너리값 -> Base64
-export function byteToBase64(byteurl){
-    return "data:image/png;base64," + byteurl
+// JSON 전송 양식식
+// Text 바이너리값 -> Base64
+export function textToBase64(str){
+    return "data:image/png;base64," + str
+}
+
+// Text 바이너리 값(6bit) -> Blob(8bit)
+export function textToBlob(str){
+    const byteArray = Uint8Array.from(atob(str), c=> c.charCodeAt(0))
+    
+    return new Blob([byteArray], { type: 'image/jpg'})
 }
 
 // 에러 메세지 파싱
