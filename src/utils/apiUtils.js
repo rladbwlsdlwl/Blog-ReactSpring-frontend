@@ -1,1 +1,1 @@
-export const urlpath = "https://port-0-blog-reactspring-backend-prod-m2k9xlt5e613b758.sel4.cloudtype.app/api"
+export const urlpath = `http://${process.env.REACT_APP_API_URL}/api`
