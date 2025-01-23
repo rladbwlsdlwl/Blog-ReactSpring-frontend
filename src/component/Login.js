@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { useContext, useState } from 'react'
-import { urlpath } from '../utils/apiUtils'
+import { domainpath, urlpath } from '../utils/apiUtils'
 import googleImg from "../images/google.png"
 import naverImg from "../images/naver.png"
 import "../css/login.css"
@@ -10,8 +10,8 @@ import { AuthContext } from '../context/AuthProvider'
 import { getErrorMsg } from '../utils/commonUtils'
 
 export default function Login(){
-    const googleurl = "https://port-0-blog-reactspring-backend-prod-m2k9xlt5e613b758.sel4.cloudtype.app/oauth2/authorization/google"
-    const naverurl = "https://port-0-blog-reactspring-backend-prod-m2k9xlt5e613b758.sel4.cloudtype.app/oauth2/authorization/naver"
+    const googleurl = domainpath + `/oauth2/authorization/google`
+    const naverurl = domainpath + `/oauth2/authorization/naver`
     const url = urlpath + "/signin"
 
     const { settingToken } = useContext(AuthContext)
