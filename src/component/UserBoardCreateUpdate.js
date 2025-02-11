@@ -167,7 +167,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             return true
         }
 
-        // 단독 파일은 5MB 이하, 파일 총 30MB를 넘지 않아야 함
+        // 단독 파일은 5MB 이하, 파일 총 50MB를 넘지 않아야 함
         const isValidateFileSize = (files) =>{
             let pSum = 0
             for(let f of files){
@@ -178,7 +178,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
                 }
             }
 
-            if(pSum > 30_000_000){
+            if(pSum > 50_000_000){
                 return false
             }
 
