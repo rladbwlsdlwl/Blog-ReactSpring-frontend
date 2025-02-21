@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import Error from "./Error"
 import { AuthContext } from "../context/AuthProvider"
-import { getDateTemplate2, getErrorCode, getErrorMsg, textToBlob } from "../utils/commonUtils"
+import { getDateTemplate2, getErrorCode, getErrorMsg, getFileUrl, textToBlob } from "../utils/commonUtils"
 import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 import "../css/UserBoard.css"
@@ -51,6 +51,11 @@ export default function UserBoard(){
             })
         })
 
+
+        return () => {
+            // 이미지 파일 메모리 해제
+            previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
+        }
     }, [])
 
     // 댓글 불러오기
@@ -62,7 +67,7 @@ export default function UserBoard(){
         const res = await axios.get(urlcommentsGET, {params: param})
         const data = res.data
 
-        console.log(data)
+        // console.log(data)
         setComments(data)
     }
 
@@ -75,7 +80,7 @@ export default function UserBoard(){
         const res = await axios.get(urllikesGET, {params: query})
         const data = res.data
 
-        console.log(data)
+        // console.log(data)
         setLikes(data)
     }
 
@@ -84,7 +89,12 @@ export default function UserBoard(){
         const res = await axios.get(urlfile)
         const data = res.data
 
-        setPreviewFile(data)
+        setPreviewFile(data.map(f => {
+            return {
+                file: getFileUrl(f.file),
+                originalFilename: f.originalFilename
+            }
+        }))
     }
 
 

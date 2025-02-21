@@ -8,7 +8,7 @@ import BoardList from "./common/BoardList"
 import FileList from "./common/FileList"
 
 import "../css/UserBoardCreateUpdate.css"
-import { getErrorCode, getErrorMsg } from "../utils/commonUtils"
+import { getErrorCode, getErrorMsg, getFileUrl } from "../utils/commonUtils"
 
 export default function UserBoardCreateUpdate(){
     const { username } = useParams()
@@ -60,6 +60,11 @@ export default function UserBoardCreateUpdate(){
             setError(true)
         }
 
+
+        return () => {
+            // Blob URL 메모리 해제
+            previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
+        }
     }, [])
 
 
@@ -82,7 +87,12 @@ export default function UserBoardCreateUpdate(){
         // Text to File
         setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
         // Text
-        setPreviewFile(data)
+        setPreviewFile(data.map(f => {
+            return {
+                originalFilename: f.originalFilename,
+                file: getFileUrl(f.file)
+            }
+        }))
         
         setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - 파일 중복가능 (기존파일과 비교하여 파일 등록 예정)
 
@@ -203,7 +213,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
         // Blob(File) 타입으로 변환 - URL.createObjectURL
         setPreviewFile([...previewFile, ...files.map(file => {
             return {
-                file: file,
+                file: getFileUrl(file),
                 originalFilename: file.name
             }
         })])

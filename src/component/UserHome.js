@@ -7,7 +7,7 @@ import qs from "qs"
 import "../css/common.css"
 import "../css/UserHome.css"
 import { AuthContext } from "../context/AuthProvider"
-import { getDateTemplate1, getErrorCode, getErrorMsg, textToBlob } from "../utils/commonUtils"
+import { getDateTemplate1, getErrorCode, getErrorMsg, getFileUrl, textToBlob } from "../utils/commonUtils"
 import GoodsComment from "./common/GoodsComment"
 
 export default function UserHome(){
@@ -42,7 +42,7 @@ export default function UserHome(){
 
         getBoardList().then(code => {
 
-            console.log(code)
+            // console.log(code)
 
         }).catch(err => {
 
@@ -58,9 +58,9 @@ export default function UserHome(){
         })
 
         return () => {
-            console.log("unmount!!!!!!!!!!!!!!!!!")
+            // 이미지 파일 메모리 해제
+            previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
         }
-
     }, [username])
 
 
@@ -107,8 +107,8 @@ export default function UserHome(){
     }
 
     async function getFileList(postIdList, usernameList){
-        console.log(postIdList)
-        console.log(usernameList)
+        // console.log(postIdList)
+        // console.log(usernameList)
         const query = {
             "postIdList": postIdList,
             "usernameList": usernameList
@@ -117,9 +117,14 @@ export default function UserHome(){
         const res = await axios.get(urlfileread, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
         const data = res.data
 
-        console.log(data)
+        // console.log(data)
 
-        setPreviewFile(data)
+        setPreviewFile(data.map(f => {
+            return {
+                ...f,
+                file: getFileUrl(f.file)
+            }
+        }))
     }
 
 
@@ -191,15 +196,12 @@ export default function UserHome(){
 const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comments, setBoardListOrderButton, username}) => {
     // 이미지 경로 반환
     const imageUrl = (postId) =>{
-        const data = previewFile.filter(file => file.postId == postId)
+        for(let prevFile of previewFile){
+            if(prevFile.postId == postId) return prevFile.file
+        }
 
+        return ""
         // return byteToBase64(data.map(d => d.file))
-        if(data.length == 0) return ""
-        
-        const file = data[0].file
-        const blob = textToBlob(file)
-
-        return URL.createObjectURL(blob)
     }
 
     function getBoardListMain(){

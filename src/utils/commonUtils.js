@@ -12,6 +12,12 @@ export function textToBlob(str){
     
     return new Blob([byteArray], { type: 'image/jpg'})
 }
+// Blob 객체를 활용한 이미지 URL 생성성
+export function getFileUrl(data){
+    if(typeof data == "string") data = textToBlob(data)
+
+    return URL.createObjectURL(data)
+}
 
 // 에러 메세지 파싱
 export function getErrorMsg(err){

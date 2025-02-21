@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../context/AuthProvider';
 import { urlpath } from '../utils/apiUtils';
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import "../css/common.css"
 import "../css/Home.css"
 import qs from "qs"
 import GoodsComment from './common/GoodsComment';
-import { textToBlob } from '../utils/commonUtils';
+import { getFileUrl } from '../utils/commonUtils';
 
 export default function Home(){
     /*
@@ -19,7 +19,7 @@ export default function Home(){
     /*
         header authentication load, set
     */
-    const {gettingToken, settingToken, gettingUserId, getUserInfo} = useContext(AuthContext)
+    const {gettingToken, settingToken, gettingUserId} = useContext(AuthContext)
 
     // 리다이렉션 후 token 노출 방지
     function settingUrlQueryParam(token){
@@ -32,6 +32,7 @@ export default function Home(){
     const [previewFile, setPreviewFile] = useState([])
     const [likes, setLikes] = useState({})
     const [comments, setComments] = useState({})
+
 
     useEffect(() => {
         
@@ -49,7 +50,13 @@ export default function Home(){
             settingUrlQueryParam(token)
         }
 
+
+        return () => {
+            // preview File 메모리 해제
+            previewFile.map(f => URL.revokeObjectURL(f))
+        }
     }, [])
+
 
     // 게시글 읽기
     async function readBoardList(){
@@ -65,7 +72,7 @@ export default function Home(){
         const boardIdList = data.map(d => d.id)
         const usernameList = data.map(d => d.username)
         
-        // 동시호출, 비동기식, 병렬처리리
+        // 동시호출, 비동기식, 병렬처리
         await Promise.all([
             readFileList(boardIdList, usernameList),
             readLikesList(boardIdList),
@@ -92,8 +99,15 @@ export default function Home(){
         const res = await axios.get(urlfile, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
 
         const data = res.data
-        console.log(data)
-        setPreviewFile(data)
+        // console.log(data)
+        
+
+        setPreviewFile(data.map(f => {
+            return {
+                ...f,
+                file: getFileUrl(f.file)
+            }
+        }))
     }
 
     // 좋아요 읽기
@@ -106,7 +120,8 @@ export default function Home(){
         const res = await axios.get(urllikes, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
 
         const data = res.data
-        console.log(data)
+        // console.log(data)
+
         setLikes(data)
     }
     
@@ -132,17 +147,12 @@ export default function Home(){
                 previewFile = {previewFile}
                 likes = {likes}
                 comments = {comments}
-                
-                activeUserId = {gettingUserId()}
-                getUserInfo = {getUserInfo}
-                token = {gettingToken()}
-                url = {url}
             />
         </div>
     )
 }
 
-const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, commentslist,  getUserInfo, token, url, activeUserId}) => {
+const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, commentslist}) => {
     const boardpath = `${username}/${id}`
     const userpath = `${username}`
     
@@ -183,17 +193,14 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, c
 }
 
 
-const BoardList = ({board, previewFile, likes, comments, activeUserId, getUserInfo, token, url}) =>{
+const BoardList = ({board, previewFile, likes, comments}) =>{
     function getPreviewFile(postId){
-        const data =  previewFile.filter(data => data.postId == postId)
+        for(let prevFile of previewFile){
+            if(prevFile.postId == postId) return prevFile.file
+        }
 
+        return ""
         // return byteToBase64(data.map(d => d.file))
-        if(data.length == 0) return ""
-    
-        const file = data[0].file
-        const blob = textToBlob(file)
-
-        return URL.createObjectURL(blob)
     }
 
     return (
@@ -207,14 +214,9 @@ const BoardList = ({board, previewFile, likes, comments, activeUserId, getUserIn
                         contents = {data.contents}
                         username = {data.username}
                         id = {data.id}
-
                         previewFile = {getPreviewFile(data.id)}
                         likeslist = {likes[data.id] || []}
                         commentslist = {comments[data.id] || []}
-                        getUserInfo = {getUserInfo}
-                        token = {token}
-                        url = {url}
-                        activeUserId = {activeUserId}
 
                         key = {`BOARDLIST_${index}`}
                     />
