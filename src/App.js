@@ -11,6 +11,7 @@ import UserBoard from './component/UserBoard';
 import UserBoardCreateUpdate from './component/UserBoardCreateUpdate';
 import HomeLayout from './component/HomeLayout';
 import UserSetting from './component/UserSetting';
+import FindUserInfo from './component/FindUserInfo';
 function App() {
   return (
     <div style = { {"minWidth": "1000px"} }>
@@ -29,6 +30,7 @@ function App() {
         <Route path = "/auth/setting" element = {<UserSetting />}></Route>
         <Route path = "/auth/login" element = {<Login />}></Route>
         <Route path = "/auth/signup" element = {<Signup />}></Route>
+        <Route path = "/auth/find" element = {<FindUserInfo />}></Route>
         <Route path = "/*" element = {<Error />}></Route>
         </Routes>
       </BrowserRouter>

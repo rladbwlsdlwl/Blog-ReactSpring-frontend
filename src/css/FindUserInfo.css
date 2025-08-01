@@ -1,0 +1,37 @@
+.findUserInfoContainer{
+    display: flex;
+    flex-direction: column;
+
+    /* justify-content: center; */
+    align-items: center;
+}
+
+.findUserInfoTop{
+    margin-top: 5%;
+    margin-bottom: 3%;
+}
+.findUserInfoBox{
+    width: 30%;
+}
+
+.findUserInfoBoxButton{
+    width: 50%;
+    padding: 5% 10%;
+
+    border: 0px;
+}
+.findUserInfoBoxButtonSelector{
+    color: rgb(114, 141, 156);
+    border-bottom: 1px solid rgb(114, 141, 156);
+}
+
+
+.findUserInfoIdContainer, .findUserInfoPwContainer{
+    display: flex;
+    flex-direction: column;
+}
+
+.findUserInfoInput{
+    padding: 5%;
+    margin: 2% 0% 20% 0%;
+}

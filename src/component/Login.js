@@ -85,12 +85,12 @@ export default function Login(){
                 {/* 유틸리티 버튼 */}
                 <div className = 'inputOuterBox utilOuter'>
                     <div className="util">
-                        <Link to = "/auth/login/findname" className = "link utilInner">
+                        <Link to = "/auth/find?mode=id" className = "link utilInner">
                             아이디 찾기
                         </Link>
                     </div>
                     <div className="util">
-                        <Link to = "/auth/login/findpassword" className = "link utilInner">
+                        <Link to = "/auth/find?mode=pw" className = "link utilInner">
                             비밀번호 찾기
                         </Link>
                     </div>
