@@ -1,3 +1,98 @@
-.commentsTemplateInput {
-    width: 700px;
+.commentsTemplateContainer{
+    box-sizing: border-box;
+    border: 1px solid gray;
+    padding: 3rem;
+
+    width: 100%;
+    margin-top: 3rem;
+}
+
+.commentsTemplateInputContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.commentsTemplateInput, .commentsTemplateInputResize{
+    width: 80%;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    resize: vertical;
+    font-size: 0.7rem;
+}
+
+.commentsTemplateButton{
+    width: 10%;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    font-size: 0.8rem;
+}
+
+.commentsTemplateUListContainer{
+    list-style-type: none;
+    padding: 0px;
+}
+
+.commentsTemplateListContainer{
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 0.8rem;
+}
+
+.commentsTemplateList{
+    padding: 0.5rem;
+}
+
+.commentsTemplateListDate{
+    font-size: 0.6rem;
+    color: gray;
+}
+
+.commentsTemplateListContents{
+    resize: none;
+    border: 0px;
+
+    width: 100%;
+}
+
+.commentsTemplateListContents:focus{
+    outline: none;
+}
+
+/* 대댓글 */
+/* 고정 Textarea, 가변 Textarea */
+.commentsTemplateListChild, .commentsTemplateListReplyInput{ 
+    margin-left: 5rem;
+}
+
+.commentsTemplateListReplyBtn, .commentsTemplateListChild{
+    font-size: 0.8rem;
+}
+
+.commentsOptionButton{
+    border: 0px;
+    background-color: white;
+
+    font-size: 1.3rem;
+}
+
+.commentsComponentButton, .goodsComponentButton{
+    display: inline-block;
+
+    background-color: white;
+    border: 0;
+    padding: 0;
+
+    width: 8rem;
+    height: 2rem;
+
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+.commentsComponentButton, .goodsComponentButton:disabled{
+    opacity: 1;
+    color: black;
 }

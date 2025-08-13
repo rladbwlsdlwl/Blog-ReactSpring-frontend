@@ -170,14 +170,13 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, c
                                     <div className='boardTemplateTitle'>{title}</div>
                                     <div className='boardTemplateContents'>{contents}</div>
                                 </div>
-                                <div>
+                                <div className='boardTemplateBodyR'>
                                     <img src = {previewFile} className='boardTemplateImg'/>
-                                </div>
-                                
-                                </div>
+                                </div> 
+                            </div>
                         </Link>
                     </div>
-                    <div>
+                    <div className="boardTemplateFooter">
                         <Link to = {boardpath}>
                             <GoodsComment
                                 likeslist = {likeslist}

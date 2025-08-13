@@ -1,34 +1,27 @@
 .userBoardCreateUpdateContainer{
-    margin: 30px 50px;
+    margin: 2rem
 }
 
 .toolbarContainer{
     display: flex;
     justify-content: space-between;
 
-    margin: 20px 0px;
+    margin: 1.3rem 0px;
 }
 
-.inputImage{
+.toolbarLabelInput{
     display: none;
 }
 
-.labelImage{
+.toolbarLabel, .toolbarPostBtn{
     border: 1px gray solid;
     border-radius: 5px;
 
-    padding: 10px 20px;
-    font-size: 10pt;
-}
-
-.postButton{
-    border: 1px gray solid;
-    border-radius: 5px;
-    
-    padding: 10px 50px;
+    padding: 1rem 1.5rem;
+    font-size: 0.8rem;
     background-color: white;
 }
 
-.postButton:hover, .labelImage:hover{
+.toolbarLabel:hover, .toolbarPostBtn:hover{
     background-color: #c2c1c0;
 }

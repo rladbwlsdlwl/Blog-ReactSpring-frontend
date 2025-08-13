@@ -1,4 +1,5 @@
 import "../../css/common.css"
+import "../../css/FileList.css"
 import { textToBlob } from "../../utils/commonUtils"
 
 // 파일 프리뷰 컨테이너
@@ -12,6 +13,7 @@ export default function FileList({file, previewFile, setFile, setPreviewFile, di
         }))
     }
 
+    // 삭제 버튼 가리기 - ReadOnly
     const buttonViewer = "fileListDeleteButton" + (disabled && " displayNone")
     return (
         <div className="fileListContainer">

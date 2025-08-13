@@ -3,9 +3,9 @@ import { useContext, useState } from 'react'
 import { domainpath, urlpath } from '../utils/apiUtils'
 import googleImg from "../images/google.png"
 import naverImg from "../images/naver.png"
-import "../css/login.css"
+import "../css/Login.css"
 import "../css/common.css"
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthProvider'
 import { getErrorMsg } from '../utils/commonUtils'
 
@@ -15,6 +15,7 @@ export default function Login(){
     const url = urlpath + "/signin"
 
     const { settingToken } = useContext(AuthContext)
+    const navigate = useNavigate()
 
 
     const [errorMsg, setErrorMsg] = useState("")
@@ -46,11 +47,12 @@ export default function Login(){
             
             // 로그인 성공 알럿, 홈 화면 전환
             window.alert("로그인 성공! 홈 화면으로 이동합니다")
-            window.location.pathname = "/"
+            // window.location.pathname = "/"
+            navigate("/")
         }).catch(err => {
-            console.log(err)
             const msg = getErrorMsg(err)
 
+            console.log(msg)
             window.alert(msg)
             setErrorMsg(msg)
         })
@@ -102,14 +104,11 @@ export default function Login(){
                 </div>
 
                 {/* 소셜 로그인 버튼 */}
-                <div className='inputOuterBox'>
+                <div className='inputOuterBox socialLoginBox'>
                     <img src = {googleImg} onClick = {() => window.location.href = googleurl} className = "socialLoginImage"/>
                     <img src = {naverImg} onClick = {() => window.location.href = naverurl} className = "socialLoginImage"/>
                 </div>
             </div>
-
-
-            
         </div>
     )
 }

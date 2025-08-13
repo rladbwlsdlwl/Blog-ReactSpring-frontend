@@ -213,7 +213,7 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
             if(idx >= board.length) break
 
             boardlist.push(<li className = "boardListMainTdLi" key = {`BOARDLIST-${idx}`}>
-                <Link to = {`/${username}/${board[idx].id}`} className="link">
+                <Link to = {`/${username}/${board[idx].id}`} className="link boardListMainTdImgWrapper">
                     <img src = {imageUrl(board[idx].id)} className = "boardListMainTdImg" />
                 </Link>
                 <div>

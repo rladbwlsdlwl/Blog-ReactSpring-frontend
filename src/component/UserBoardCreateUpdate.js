@@ -173,7 +173,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
                 }
             }
 
-            console.log("type passed!")
+            // console.log("type passed!")
             return true
         }
 
@@ -193,7 +193,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             }
 
             
-            console.log("size passed!", pSum)
+            // console.log("size passed!", pSum)
             return true
         }
         
@@ -389,12 +389,12 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
 
     return (
         <div className="toolbarContainer">
-            <label className="labelImage">
+            <label className="toolbarLabel">
                 파일
-                <input type = "file" accept = "image/*" multiple onChange = {handlerImage} className="inputImage"></input>
+                <input type = "file" accept = "image/*" multiple onChange = {handlerImage} className="toolbarLabelInput"></input>
             </label>
 
-            <button onClick = {handleSubmitPost} className="postButton">
+            <button onClick = {handleSubmitPost} className="toolbarPostBtn">
                 저장
             </button>
         </div>

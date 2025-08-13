@@ -2,24 +2,23 @@
     display: flex;
     justify-content: center;
     
-    padding-top: 50px;
-    padding-bottom: 50px;
+    padding-top: 5rem;
 }
 
 .signinOuter{
-    width: 420px;    
-    margin: 20px 0 20px 0;
+    width: 25rem;
 }
 
 .inputOuterBox{
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
 }
 
 .inputBox{
     width: 100%;
-    padding: 18px;
+    padding: 1rem;
 
     box-sizing: border-box;
+    font-size: 0.8rem;
 }
 
 .utilOuter{
@@ -39,5 +38,9 @@
 
 .socialLoginImage{
     width: 45%;
-    margin: 0px 10px;
+}
+
+.socialLoginBox{
+    display: flex;
+    justify-content: space-between;
 }

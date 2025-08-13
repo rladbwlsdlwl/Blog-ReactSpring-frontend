@@ -12,9 +12,11 @@ import UserBoardCreateUpdate from './component/UserBoardCreateUpdate';
 import HomeLayout from './component/HomeLayout';
 import UserSetting from './component/UserSetting';
 import FindUserInfo from './component/FindUserInfo';
+import "./App.css"
+
 function App() {
   return (
-    <div style = { {"minWidth": "1000px"} }>
+    <div className='appContainer'>
       <AuthProvider>
       <BrowserRouter>
         <Header />

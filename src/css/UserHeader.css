@@ -1,0 +1,8 @@
+.userHeaderOuter{
+    text-align: right;
+}
+
+.userHeaderInner{
+    display: inline;
+    margin: 1rem;
+}

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react"
 import axios from "axios"
 import { getErrorCode, getErrorMsg, getDateTemplate2 } from "../../utils/commonUtils"
 import "../../css/common.css"
+import "../../css/GoodsComment.css"
 import { Link } from "react-router-dom"
 
 
@@ -70,6 +71,8 @@ export default function GoodsComment({likeslist, commentslist, getUserInfo, toke
     )
 }
 
+// 댓글 작성 || 댓글 수정 || 대댓글 작성
+// Textarea 
 const CommentsInput = ({ commentsList, setCommentsList, activeUserId, activeUsername, getUserInfo, token, urlcomments, id, className, parentId, contents = "", update = false, setCommentsUpdateId, commentsId, setCommentsReplyId }) => {
     const urlcommentsPOST = urlcomments + `/${id}`
     const urlcommentsPatch = urlcomments + `/${commentsId}`
@@ -158,11 +161,12 @@ const CommentsInput = ({ commentsList, setCommentsList, activeUserId, activeUser
 
 
     return (
+        // 대댓글은 패딩 부여 commentsTemplateReplyInput
         <div className = {`commentsTemplateInputContainer ${className}`}>
-            <textarea name = "comments" value = {comments} onChange = {handleCommentsInput} disabled = {activeUserId == ""} placeholder = {activeUserId == "" ? "로그인 후 입력하세요": "댓글을 입력하세요"} className = "commentsTemplateInput"></textarea>
+            <textarea name = "comments" value = {comments} onChange = {handleCommentsInput} disabled = {activeUserId == ""} placeholder = {activeUserId == "" ? "로그인 후 입력하세요": "댓글을 입력하세요"} className = {update? "commentsTemplateInputResize": "commentsTemplateInput"} ></textarea>
             <input type = "button" onClick = {handleCommentsButton} disabled = {activeUserId == ""} className = "commentsTemplateButton" value = "작성"></input>
             {
-                update && <input type = "button" onClick = {() => setCommentsUpdateId(-1)} value = "취소"></input>
+                update && <input type = "button" onClick = {() => setCommentsUpdateId(-1)} className = "commentsTemplateButton" value = "취소"></input>
             }
         </div>
     )
@@ -227,6 +231,7 @@ const CommentsOption = ({ activeUsername, username, authorName, commentsId, setC
     )
 }
 
+// Textarea ReadOnly
 const CommentsTemplateContentsTextarea = ({contents}) => {
     const textareaRef = useRef(null)
 
@@ -243,14 +248,27 @@ const CommentsTemplateContentsTextarea = ({contents}) => {
     )
 }
 
+// 댓글 인터페이스 아이콘 클릭 시 사용
 const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeUsername, getUserInfo, token, username, urlcomments, id, getDateTemplate2 }) => {
     // 답글 인덱스 - CommentInput visible / hidden
     const [commentsReplyId, setCommentsReplyId] = useState(-1)
     // 댓글 수정 인덱스 - CommentInput visible / hidden
     const [commentsUpdateId, setCommentsUpdateId] = useState(-1)
 
-    console.log(commentsList)
+    // 댓글은 하나씩만 작성 가능
+    useEffect(() => {
+        setCommentsUpdateId(-1)
+    }, [commentsReplyId])
+    useEffect(() => {
+        setCommentsReplyId(-1)
+    }, [commentsUpdateId])
+    
+
+
     // 댓글 리스트
+    // 대댓글 포함한 컴포넌트 (target이 0이면 댓글, 0이 아니면 대댓글)
+    // 댓글을 수정하거나 삭제할 경우 || 대댓글을 작성할 경우 CommentsInput로 대체
+    // 그 외의 경우 CommentsTemplateContentsTextarea
     function getCommentsList(target){
         const commlist = []
 
@@ -290,7 +308,7 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
                     token = {token}
                     urlcomments = {urlcomments}
                     id = {id}
-                    className = {target != 0? "commentsTemplateListReplyInput": "commentsTemplateListInput"}
+                    className = {target != 0 && "commentsTemplateListReplyInput"}
                     parentId = {target != 0? target: comm.id}
 
                     contents = {comm.contents}
@@ -301,7 +319,7 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
 
 
                 // 답글 컴포넌트
-                commlist.push(<button onClick = {() => setCommentsReplyId(commentsReplyId == comm["id"]? -1: comm["id"])} className = {target != 0 && "commentsTemplateListChild"}>답글</button>) 
+                commlist.push(<button onClick = {() => setCommentsReplyId(commentsReplyId == comm["id"]? -1: comm["id"])} className = {target != 0 ? "commentsTemplateListChild commentsTemplateListReplyBtn": "commentsTemplateListReplyBtn"}>답글</button>) 
                 commlist.push(comm.id == commentsReplyId && <CommentsInput  
                     commentsList = {commentsList}
                     setCommentsList = {setCommentsList}
@@ -311,7 +329,7 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
                     token = {token} 
                     urlcomments = {urlcomments}
                     id = {id}
-                    className = {target != 0? "commentsTemplateListReplyInput": "commentsTemplateListInput"}
+                    className = {target != 0 && "commentsTemplateListReplyInput"}
                     parentId = {target != 0? target :comm.id}
 
                     setCommentsReplyId = {setCommentsReplyId}
@@ -332,7 +350,6 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
 
     return (
         <div>
-            <div style = {{"marginBottom": "50px"}}/>
             <div className = "commentsTemplateContainer">
                 {/* 댓글 입력창 */}
                 <CommentsInput
@@ -365,7 +382,7 @@ const CommentsTemplate = ({ commentsList, setCommentsList, activeUserId, activeU
 const CommentsComponent = ({ commentsList, setCommentsList, activeUserId, activeUsername, getUserInfo, token, username, urlcomments, id, commentsBtn, setCommentsBtn, getDateTemplate2 }) => {
     return (
         <span>
-            <button className = 'boardTemplateFooterBtn' onClick = { () => setCommentsBtn(prev => !prev)}>💬 댓글 { commentsList.length }</button>
+            <button className = 'commentsComponentButton' onClick = { () => setCommentsBtn(prev => !prev)}>💬 댓글 { commentsList.length }</button>
             { 
                 commentsBtn && <CommentsTemplate
                     commentsList = {commentsList}
@@ -405,7 +422,6 @@ const GoodsComponent = ({ activeUserId, likeslist, already_likes, likesBtn, setL
 
         })
 
-        console.log("버튼 클릭!!")
         setLikesBtn(!likesBtn)
     }
 
@@ -450,7 +466,7 @@ const GoodsComponent = ({ activeUserId, likeslist, already_likes, likesBtn, setL
 
 
     return (
-        <button onClick = { handleLikesBtn } disabled = {activeUserId == ""} className = 'boardTemplateFooterBtn'>
+        <button onClick = { handleLikesBtn } disabled = {activeUserId == ""} className = 'goodsComponentButton'>
                 { likesBtn ? <span>❤️</span>: <span>🤍</span> } 좋아요 { getLikesSize(likesBtn, likeslist.length) }
         </button>
     )

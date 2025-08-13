@@ -4,19 +4,21 @@
 
     /* justify-content: center; */
     align-items: center;
+
+    font-size: 0.8rem;
 }
 
 .findUserInfoTop{
-    margin-top: 5%;
-    margin-bottom: 3%;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
 }
 .findUserInfoBox{
-    width: 30%;
+    width: 25rem;
 }
 
 .findUserInfoBoxButton{
     width: 50%;
-    padding: 5% 10%;
+    padding: 1rem 3rem;
 
     border: 0px;
 }
@@ -32,6 +34,9 @@
 }
 
 .findUserInfoInput{
-    padding: 5%;
-    margin: 2% 0% 20% 0%;
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    margin: 2rem 0;
 }

@@ -1,38 +1,105 @@
-.App {
-  text-align: center;
+html{
+  font-size: 14pt;
+} 
+
+.appContainer{
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+@media (max-width: 1024px){
+  html{
+    font-size: 12pt;
   }
 }
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 768px){
+  html{
+    font-size: 10pt;
   }
-  to {
-    transform: rotate(360deg);
+  /* Home.js */
+  /* 세로 콘텐츠 정렬 */
+  .boardTemplateBody{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+  }
+  .boardTemplateContainer{
+    height: 30em;
+  }
+  .boardTemplateBodyL{
+    /* 가로로 꽉차게, 세로로 비율 맞추기 */
+    width: 100%;
+    height: 30%;
+  }
+  .boardTemplateBodyR{
+    width: 100%;
+    height: 65%;
+  }
+  .boardTemplateImg{
+    width: 100%;
+    height: 100%;
+  }
+
+  /* GoodsComment.js */
+  /* 댓글 사이즈 수정 - 작성 취소 버튼으로 인한 리사이징 */
+  .commentsTemplateInputResize{
+    width: 60%;
+  }
+  .commentsTemplateButton{
+    width: 20%;
+  }
+
+  /* UserSetting.css */
+  /* 회원 정보 수정 - 크기 조정 */
+  .userSettingBox{
+    width: 80%;
+  }
+}
+@media (max-width: 480px){
+  /* App.js */
+  html{
+    font-size: 8pt;
+  }
+  /* Home.js */
+  /* 세로 콘텐츠 정렬 */
+  .boardTemplateBody{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+  }
+  .boardTemplateContainer{
+    height: 30em;
+  }
+  .boardTemplateBodyL{
+    /* 가로로 꽉차게, 세로로 비율 맞추기 */
+    width: 100%;
+    height: 30%;
+  }
+  .boardTemplateBodyR{
+    width: 100%;
+    height: 65%;
+  }
+  .boardTemplateImg{
+    width: 100%;
+    height: 100%;
+  }
+
+  /* GoodsComment.js */
+  /* 댓글 사이즈 수정 - 작성 취소 버튼으로 인한 리사이징 */
+  .commentsTemplateInputResize{
+    width: 60%;
+  }
+  .commentsTemplateButton{
+    width: 20%;
+  }
+
+  /* UserSetting.css */
+  /* 회원 정보 수정 - 크기 조정 */
+  .userSettingBox{
+    width: 80%;
   }
 }

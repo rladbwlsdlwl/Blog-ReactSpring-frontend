@@ -6,29 +6,28 @@ import { getErrorCode, getErrorMsg } from "../utils/commonUtils"
 import Error from "./Error"
 import "../css/UserSetting.css"
 import qs from "qs"
+import { useNavigate } from "react-router-dom"
 
 export default function UserSetting(){
-
     const { gettingToken, settingToken, getUserInfo, gettingUserEmail, gettingUsername, gettingUserPasswordIsNull } = useContext(AuthContext)
     const [token, name, email, passwordIsNull] = [gettingToken(), gettingUsername(), gettingUserEmail(), gettingUserPasswordIsNull()]    
-    
+    const navigate = useNavigate()
+
     const urllogout = urlpath + "/logout"
     const urlsetting = urlpath + `/${name}/setting`
+
 
     const [error, setError] = useState(false)
     const [passwordErrorMsg, setPasswordErrorMsg] = useState("")
     const [user, setUser] = useState({
         name: "", // 닉네임
         email: "", // 이메일
-        curr_password: "", // 패스워드
-        change_password: "", // 패스워드
-        re_change_password: "" // 패스워드
+        curr_password: "", // 현재 패스워드
+        change_password: "", // 변경할 패스워드
+        re_change_password: "" // 변경할 패스워드 재입력
     }) // input
 
-    useEffect(() => {
 
-        console.log("변화감지!!!")
-    }, [gettingToken])
 
     // 로그아웃 핸들러
     function handlelogout(e){
@@ -52,7 +51,7 @@ export default function UserSetting(){
             settingToken("")
 
             // 홈화면 라우팅
-            window.location.pathname = "/"
+            navigate("/")
 
         }).catch(err => {
 
@@ -90,7 +89,7 @@ export default function UserSetting(){
             settingToken("")
 
             // 홈화면 라우팅
-            window.location.pathname = "/"
+            navigate("/")
 
         }).catch(err => {
 

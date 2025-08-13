@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react"
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { urlpath } from "../utils/apiUtils"
 import axios from "axios"
 import { getErrorCode, getErrorMsg } from "../utils/commonUtils"
@@ -59,7 +59,7 @@ function FindUserInfoId({url}){
     return (
         <div className = "findUserInfoIdContainer">
             <label>이메일</label>
-            <input className = "findUserInfoInput" placeholder = "이메일을 입력하세요" name = "email" value = {email} onChange = {(e) => {console.log("이메일 인풋 태그 변경 - " + e.target.value, email); setEmail(e.target.value)}}></input>
+            <input className = "findUserInfoInput" placeholder = "이메일을 입력하세요" name = "email" value = {email} onChange = {(e) => {setEmail(e.target.value)}}></input>
             <input className = "findUserInfoInput" type = "submit" onClick = {submitHandler} value = "확인"></input>
             {username && <p>아이디: {username}</p>}
         </div>
@@ -97,7 +97,7 @@ function FindUserInfoPw({url}){
     return (
         <div className="findUserInfoPwContainer">
             <label>아이디/닉네임</label>
-            <input className = "findUserInfoInput" placeholder = "아이디 정보를 입력하세요" name = "username" value = {username} onChange = {(e) => {console.log("닉네임/아이디 인풋 태그 변경 - " + e.target.value, username); setUsername(e.target.value)}}></input>
+            <input className = "findUserInfoInput" placeholder = "아이디 정보를 입력하세요" name = "username" value = {username} onChange = {(e) => {setUsername(e.target.value)}}></input>
             <input className = "findUserInfoInput" type = "submit" onClick = {submitHandler} value = "확인"></input>
             {pwd && <p>임시 비밀번호: {pwd}</p>}
         </div>

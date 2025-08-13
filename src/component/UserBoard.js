@@ -115,8 +115,9 @@ export default function UserBoard(){
                 message = "잘못된 접근입니다"
             />
         )
-    }else{
-        return (
+    }
+
+    return (
         <div className = "userBoardContainer">
             { 
                 // 내 글 설정 
@@ -162,9 +163,7 @@ export default function UserBoard(){
             />
 
         </div>
-        
-    )}
-    
+    )
 }
 
 const PostToolBar = ({activeUsername, id, urlBoardDelete, urlFileDelete, token, settingToken, getErrorCode, getErrorMsg}) => {
@@ -216,18 +215,13 @@ const PostToolBar = ({activeUsername, id, urlBoardDelete, urlFileDelete, token, 
         <div className = "postToolbarContainer">
             <div className = "postToolbarSettingBtnContainer">
                 <button className="postToolbarSettingBtn" onClick = {(e) => setOpenPost(!openPost)}> ⚙️ </button>
+                {
+                    openPost && <div className = "postToolbarSettingBtnLinkContainer">
+                        <Link to = {`/${activeUsername}/new?type=update&id=${id}`} className="link postToolbarSettingBtnLink"> 수정 </Link>
+                        <Link onClick = {handleDeletePost} className="link postToolbarSettingBtnLink" > 삭제 </Link>
+                    </div>
+                }
             </div>
-            
-            {
-                openPost && <div>
-                    <div className="postToolbarSettingBtnOpen">
-                        <Link to = {`/${activeUsername}/new?type=update&id=${id}`} className="link"> 수정 </Link>
-                    </div>
-                    <div className="postToolbarSettingBtnOpen">
-                        <Link onClick = {handleDeletePost} className="link" > 삭제 </Link>
-                    </div>
-                </div>
-            }
         </div>
     )
 }
