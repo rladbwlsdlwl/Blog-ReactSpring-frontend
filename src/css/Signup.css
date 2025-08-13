@@ -1,0 +1,21 @@
+.signupContainer{
+    display: flex;
+    justify-content: center;
+    
+    margin: 5rem 0rem;
+}
+
+.signupOuter{
+    width: 20rem;
+}
+
+.inputOuterBox{
+    margin-bottom: 1rem;
+}
+
+.inputBox{
+    width: 100%;
+    padding: 1rem;
+
+    box-sizing: border-box;
+}

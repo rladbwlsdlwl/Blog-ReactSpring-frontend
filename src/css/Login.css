@@ -1,0 +1,46 @@
+.signinContainer{
+    display: flex;
+    justify-content: center;
+    
+    padding-top: 5rem;
+}
+
+.signinOuter{
+    width: 25rem;
+}
+
+.inputOuterBox{
+    margin-bottom: 1rem;
+}
+
+.inputBox{
+    width: 100%;
+    padding: 1rem;
+
+    box-sizing: border-box;
+    font-size: 0.8rem;
+}
+
+.utilOuter{
+    display: flex;
+    justify-content: center;
+}
+
+.util{
+    width: 100%;
+}
+
+.utilInner{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.socialLoginImage{
+    width: 45%;
+}
+
+.socialLoginBox{
+    display: flex;
+    justify-content: space-between;
+}
