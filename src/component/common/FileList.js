@@ -3,15 +3,17 @@ import "../../css/FileList.css"
 import { textToBlob } from "../../utils/commonUtils"
 
 // 파일 프리뷰 컨테이너
-export default function FileList({file, previewFile, setFile, setPreviewFile, disabled = false}){
-    function handleDeleteFile(index){
-        setFile(file.filter((data, idx) => idx != index))
-        setPreviewFile(previewFile.filter((data, idx) => {
-            if(idx == index) URL.revokeObjectURL(data.file) // 메모리 해제
+export default function FileList({file, previewFile, beforeFilenameList, setFile, setPreviewFile, setBeforeFilenameList, disabled = false}){
+    function handleDeleteFile(index) {
+        setPreviewFile(previewFile.filter((_, idx) => idx != index))
+        
+        // 새로운 파일
+        setFile(file.filter(file => !(previewFile[index].currentFilename == "" && file.name == previewFile[index].originalFilename)))
 
-            return idx != index
-        }))
+        // 기존 파일
+        setBeforeFilenameList(beforeFilenameList.filter(filename => filename != previewFile[index].currentFilename))
     }
+
 
     // 삭제 버튼 가리기 - ReadOnly
     const buttonViewer = "fileListDeleteButton" + (disabled && " displayNone")

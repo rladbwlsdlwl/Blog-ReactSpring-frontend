@@ -53,7 +53,7 @@ export default function Home(){
 
         return () => {
             // preview File 메모리 해제
-            previewFile.map(f => URL.revokeObjectURL(f))
+            // previewFile.map(f => URL.revokeObjectURL(f))
         }
     }, [])
 
@@ -102,12 +102,7 @@ export default function Home(){
         // console.log(data)
         
 
-        setPreviewFile(data.map(f => {
-            return {
-                ...f,
-                file: getFileUrl(f.file)
-            }
-        }))
+        setPreviewFile(data)
     }
 
     // 좋아요 읽기
@@ -199,7 +194,6 @@ const BoardList = ({board, previewFile, likes, comments}) =>{
         }
 
         return ""
-        // return byteToBase64(data.map(d => d.file))
     }
 
     return (

@@ -54,7 +54,7 @@ export default function UserBoard(){
 
         return () => {
             // 이미지 파일 메모리 해제
-            previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
+            // previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
         }
     }, [])
 
@@ -89,12 +89,7 @@ export default function UserBoard(){
         const res = await axios.get(urlfile)
         const data = res.data
 
-        setPreviewFile(data.map(f => {
-            return {
-                file: getFileUrl(f.file),
-                originalFilename: f.originalFilename
-            }
-        }))
+        setPreviewFile(data)
     }
 
 

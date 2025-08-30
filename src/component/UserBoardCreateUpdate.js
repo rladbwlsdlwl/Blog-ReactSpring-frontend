@@ -30,9 +30,9 @@ export default function UserBoardCreateUpdate(){
     // 인풋 데이터
     const beforeBoard = useRef({}) // 롤백 데이터 저장
     const [board, setBoard] = useState({})
-    const [file, setFile] = useState([])
-    const [previewFile, setPreviewFile] = useState([])
-    const [beforeFilenameList, setbeforeFilenameList] = useState([])
+    const [file, setFile] = useState([]) // 새로운 파일만 등록 <File>
+    const [previewFile, setPreviewFile] = useState([]) // 모든 파일 미리보기 url
+    const [beforeFilenameList, setBeforeFilenameList] = useState([]) // 기존 파일만 등록 <Json Obj>
 
 
     // 에러 페이지
@@ -63,7 +63,11 @@ export default function UserBoardCreateUpdate(){
 
         return () => {
             // Blob URL 메모리 해제
-            previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
+            previewFile.map(prevFile => {
+                // URL이 아닌 새로운 파일 미리보기는 메모리 해제
+                if(prevFile.currentFilename == "") 
+                    URL.revokeObjectURL(prevFile.file)
+            })
         }
     }, [])
 
@@ -84,22 +88,10 @@ export default function UserBoardCreateUpdate(){
 
         const data = res.data
 
-        // Text to File
-        setFile(data.map(f => new File(Array.of(f), f.originalFilename))) // 파일 등록
-        // Text
-        setPreviewFile(data.map(f => {
-            return {
-                originalFilename: f.originalFilename,
-                file: getFileUrl(f.file)
-            }
-        }))
+   
+        setPreviewFile(data) // currentFilename =  "" 이면 신규 파일, 그렇지 않으면 기존 파일
         
-        setbeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록 - 파일 중복가능 (기존파일과 비교하여 파일 등록 예정)
-
-        // Text to Base64
-        // setPreviewFile(data.map(f => {
-        //     return byteToBase64(f.file)
-        // }))
+        setBeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록
     }
 
 
@@ -138,10 +130,12 @@ export default function UserBoardCreateUpdate(){
             />
 
             <FileList
-                file = {file}
-                previewFile = {previewFile}
+                file = {file} // 새로운 파일 
+                previewFile = {previewFile} // 모든 파일 
+                beforeFilenameList = {beforeFilenameList} // 기존 파일
                 setFile = {setFile}
                 setPreviewFile = {setPreviewFile}
+                setBeforeFilenameList = {setBeforeFilenameList}
             />
             
             <BoardList 
@@ -214,7 +208,8 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
         setPreviewFile([...previewFile, ...files.map(file => {
             return {
                 file: getFileUrl(file),
-                originalFilename: file.name
+                originalFilename: file.name,
+                currentFilename: ""
             }
         })])
         setFile([...file, ...files])
@@ -327,7 +322,6 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             await submitPostFile(data.id, isUpdatePost)
 
             return data.id
-            
         }else{
             // post
             

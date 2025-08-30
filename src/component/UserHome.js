@@ -59,7 +59,7 @@ export default function UserHome(){
 
         return () => {
             // 이미지 파일 메모리 해제
-            previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
+            // previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
         }
     }, [username])
 
@@ -119,12 +119,7 @@ export default function UserHome(){
 
         // console.log(data)
 
-        setPreviewFile(data.map(f => {
-            return {
-                ...f,
-                file: getFileUrl(f.file)
-            }
-        }))
+        setPreviewFile(data)
     }
 
 
@@ -195,13 +190,12 @@ export default function UserHome(){
 
 const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comments, setBoardListOrderButton, username}) => {
     // 이미지 경로 반환
-    const imageUrl = (postId) =>{
+    const getPreviewFile = (postId) =>{
         for(let prevFile of previewFile){
             if(prevFile.postId == postId) return prevFile.file
         }
 
         return ""
-        // return byteToBase64(data.map(d => d.file))
     }
 
     function getBoardListMain(){
@@ -214,7 +208,7 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
 
             boardlist.push(<li className = "boardListMainTdLi" key = {`BOARDLIST-${idx}`}>
                 <Link to = {`/${username}/${board[idx].id}`} className="link boardListMainTdImgWrapper">
-                    <img src = {imageUrl(board[idx].id)} className = "boardListMainTdImg" />
+                    <img src = {getPreviewFile(board[idx].id)} className = "boardListMainTdImg" />
                 </Link>
                 <div>
                     <Link to = {`/${username}/${board[idx].id}`} className="link"><div className="boardListMainTdTitle">{board[idx].title}</div></Link>
