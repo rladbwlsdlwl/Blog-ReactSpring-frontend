@@ -70,11 +70,10 @@ export default function Home(){
         // 좋아요 불러오기
         // 댓글 불러오기
         const boardIdList = data.map(d => d.id)
-        const usernameList = data.map(d => d.username)
         
         // 동시호출, 비동기식, 병렬처리
         await Promise.all([
-            readFileList(boardIdList, usernameList),
+            readFileList(boardIdList),
             readLikesList(boardIdList),
             readCommentsList(boardIdList)
         ])
@@ -89,11 +88,10 @@ export default function Home(){
     }
 
     // 파일 읽기
-    async function readFileList(boardIdList, usernameList){
+    async function readFileList(boardIdList){
         const urlfile = url + "/username/file"
         const query = {
-            postIdList: boardIdList,
-            usernameList: usernameList
+            postIdList: boardIdList
         }
 
         const res = await axios.get(urlfile, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})

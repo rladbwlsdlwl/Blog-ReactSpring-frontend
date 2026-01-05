@@ -71,10 +71,9 @@ export default function UserHome(){
 
         // 파일 불러오기
         const boardIdList = data.map(d => d.id)
-        const usernameList = data.map(d => username)
     
         await Promise.all([
-            getFileList(boardIdList, usernameList),
+            getFileList(boardIdList),
             getLikesList(boardIdList),
             getCommentsList(boardIdList)
         ])
@@ -106,12 +105,11 @@ export default function UserHome(){
         setLikes(data)
     }
 
-    async function getFileList(postIdList, usernameList){
+    async function getFileList(postIdList){
         // console.log(postIdList)
         // console.log(usernameList)
         const query = {
-            "postIdList": postIdList,
-            "usernameList": usernameList
+            "postIdList": postIdList
         }
 
         const res = await axios.get(urlfileread, {params: query, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
