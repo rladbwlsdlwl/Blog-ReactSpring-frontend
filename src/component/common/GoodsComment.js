@@ -425,18 +425,10 @@ const GoodsComponent = ({ activeUserId, likeslist, already_likes, likesBtn, setL
         const header = {
             "Authentication": token
         }
-        const query = {
-            userId: activeUserId
-        }
-
-        const postData = {
-            boardId: id,
-            author: activeUserId
-        }
 
         if(isPostLike){
 
-            const res = await axios.post(urllikes, postData, {headers: header})
+            const res = await axios.post(urllikes, {}, {headers: header})
 
             const data = res.data
             
@@ -444,7 +436,7 @@ const GoodsComponent = ({ activeUserId, likeslist, already_likes, likesBtn, setL
 
         }else{
 
-            const res = await axios.delete(urllikes, {headers: header, params: query})
+            const res = await axios.delete(urllikes, {headers: header})
             
             return res.status
 
