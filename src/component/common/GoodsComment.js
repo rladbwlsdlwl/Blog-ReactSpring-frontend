@@ -117,14 +117,10 @@ const CommentsInput = ({ commentsList, setCommentsList, activeUserId, activeUser
             "Authentication": token
         }
         const postData = {
-            "author": activeUserId,
-            "authorName": activeUsername,
-            "boardId": id,
             "parentId": parentId,
             "contents": comments
         }
         const patchData = {
-            "author": activeUserId,
             "contents": comments
         }
 
