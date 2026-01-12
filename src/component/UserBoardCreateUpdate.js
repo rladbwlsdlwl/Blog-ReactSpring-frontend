@@ -307,8 +307,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
         }
 
         const postData = {
-            ...board, 
-            author: author
+            ...board
         }
 
         if(isUpdatePost){
