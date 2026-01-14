@@ -75,7 +75,7 @@ function FindUserInfoPw({url}){
             name: username
         }
 
-        axios.patch(url, data).then(res => {
+        axios.post(url, data).then(res => {
 
             const pw = res.data.password
             window.alert("비밀번호를 초기화하였습니다\n임시 비밀번호를 통해 로그인하세요\n비밀번호: " + pw);
