@@ -7,11 +7,11 @@ export default function FileList({file, previewFile, beforeFilenameList, setFile
     function handleDeleteFile(index) {
         setPreviewFile(previewFile.filter((_, idx) => idx != index))
         
-        // 새로운 파일
-        setFile(file.filter(file => !(previewFile[index].currentFilename == "" && file.name == previewFile[index].originalFilename)))
-
-        // 기존 파일
-        setBeforeFilenameList(beforeFilenameList.filter(filename => filename != previewFile[index].currentFilename))
+        // 새로운 파일 삭제
+        if(previewFile[index].currentFilename == "")
+            setFile(file.filter(file => file.name != previewFile[index].originalFilename))
+        else // 기존 파일 삭제 리스트 추가
+            setBeforeFilenameList([...beforeFilenameList, previewFile[index].currentFilename])
     }
 
 

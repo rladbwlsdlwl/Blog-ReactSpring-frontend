@@ -90,8 +90,6 @@ export default function UserBoardCreateUpdate(){
 
    
         setPreviewFile(data) // currentFilename =  "" 이면 신규 파일, 그렇지 않으면 기존 파일
-        
-        setBeforeFilenameList(data.map(f => f.currentFilename)) // 기존 파일이름 등록
     }
 
 
@@ -353,7 +351,7 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             const formData = new FormData()
 
             file.forEach(f => formData.append("file", f))
-            beforeFilenameList.forEach(dfilename => formData.append("beforeFilenameList", new Blob([dfilename], {type: "application/json"})) )
+            beforeFilenameList.forEach(dfilename => formData.append("removeFilenameList", new Blob([dfilename], {type: "application/json"})) )
             
             // console.log(beforeFilenameList)
             
