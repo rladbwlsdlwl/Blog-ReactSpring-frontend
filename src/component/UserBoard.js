@@ -200,8 +200,9 @@ const PostToolBar = ({activeUsername, id, urlBoardDelete, urlFileDelete, token, 
             Authentication: token
         }
 
-        await axios.delete(urlBoardDelete, {headers: header})
+        // File(부 테이블 먼저 삭제) -> Board(주 테이블)
         await axios.delete(urlFileDelete, {headers: header})
+        await axios.delete(urlBoardDelete, {headers: header})
     }
 
 
