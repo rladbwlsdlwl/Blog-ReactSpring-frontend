@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useContext, useEffect, useState, useRef } from 'react';
+import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { AuthContext } from '../context/AuthProvider';
 import { urlpath } from '../utils/apiUtils';
 import { Link } from 'react-router-dom';
@@ -34,17 +34,41 @@ export default function Home(){
     const [comments, setComments] = useState({})
 
 
+    // 무한 스크롤 
+    let page = 0 // querystring
+    const scrollRef = useRef(null) // 스크롤 영역 참조 및 이벤트 발생
+
+
+
+    const lastElementRef = useCallback(node => {
+
+        if(scrollRef.current)
+            scrollRef.current.disconnect()
+
+        // 변경 감지
+        const cb = (entries) => {
+            if(entries[0].isIntersecting){
+                console.log("이벤트 탐지! 데이터를 불러옵니다")
+
+                page++
+                getAllDataList()
+            }
+        }
+    
+        scrollRef.current = new IntersectionObserver(cb, {threshold: 0.5})
+    
+
+        // 이벤트 등록
+        if(node){
+            scrollRef.current.observe(node)
+        }
+
+    }, [])
+
+    // load data
     useEffect(() => {
         
-        readBoardList().then((code) => {
-        
-            console.log(`success to read data, RESPONSE CODE: ${code}`)
-        
-        }).catch(err => {
-
-            console.log(`failed to load data - ${err}`)
-
-        })
+        getAllDataList()
 
         if(token != undefined){
             settingUrlQueryParam(token)
@@ -58,12 +82,32 @@ export default function Home(){
     }, [])
 
 
+    function getAllDataList(){
+        
+        readBoardList().then((code) => {
+        
+            console.log(`success to read data, RESPONSE CODE: ${code}`)
+        
+        }).catch(err => {
+
+            console.log(`failed to load data - ${err}`)
+
+        })
+
+    }
+
     // 게시글 읽기
     async function readBoardList(){
-        const res = await axios.get(url)
+        const query = {"lastId": page}
+
+        const res = await axios.get(url, {params: query})
 
         const data = res.data
-        setBoardList(data)
+        setBoardList(prev => {
+            console.log(prev, data)    
+            
+            return [...prev, ...data]
+        })
 
 
         // 파일 불러오기
@@ -100,7 +144,7 @@ export default function Home(){
         // console.log(data)
         
 
-        setPreviewFile(data)
+        setPreviewFile([...previewFile, ...data])
     }
 
     // 좋아요 읽기
@@ -115,7 +159,7 @@ export default function Home(){
         const data = res.data
         // console.log(data)
 
-        setLikes(data)
+        setLikes([...likes , ...data])
     }
     
     // 댓글 읽기
@@ -128,7 +172,7 @@ export default function Home(){
         const res = await axios.get(urlcomments, {params: param, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
         const data = res.data
     
-        setComments(data)
+        setComments([...comments, ...data])
     }
 
 
@@ -140,6 +184,7 @@ export default function Home(){
                 previewFile = {previewFile}
                 likes = {likes}
                 comments = {comments}
+                lastElementRef = {lastElementRef}
             />
         </div>
     )
@@ -185,7 +230,7 @@ const BoardTemplate = ({title, contents, username, id, previewFile, likeslist, c
 }
 
 
-const BoardList = ({board, previewFile, likes, comments}) =>{
+const BoardList = ({board, previewFile, likes, comments, lastElementRef}) =>{
     function getPreviewFile(postId){
         for(let prevFile of previewFile){
             if(prevFile.postId == postId) return prevFile.file
@@ -199,7 +244,7 @@ const BoardList = ({board, previewFile, likes, comments}) =>{
             <thead />
             <tbody>
             {
-                board.map((data, index) => <tr><td>
+                board.map((data, index) => <tr ref = { (index == board.length - 1)? lastElementRef: null  }><td>
                     <BoardTemplate 
                         title = {data.title}
                         contents = {data.contents}
