@@ -35,22 +35,26 @@ export default function Home(){
 
 
     // 무한 스크롤 
-    let page = 0 // querystring
+    let page = null // querystring
     const scrollRef = useRef(null) // 스크롤 영역 참조 및 이벤트 발생
-
+    const [hasNext, setHasNext] = useState(false)
 
 
     const lastElementRef = useCallback(node => {
 
+        // 이벤트 해제: 변경 감지
         if(scrollRef.current)
             scrollRef.current.disconnect()
 
-        // 변경 감지
+        // 끝 데이터면 이벤트 등록 X
+        if(!hasNext)
+            return
+
+        // 실행할 콜백함수
         const cb = (entries) => {
             if(entries[0].isIntersecting){
                 console.log("이벤트 탐지! 데이터를 불러옵니다")
 
-                page++
                 getAllDataList()
             }
         }
@@ -63,7 +67,7 @@ export default function Home(){
             scrollRef.current.observe(node)
         }
 
-    }, [])
+    }, [board]) // deps(snapshot 변경 감지)
 
     // load data
     useEffect(() => {
@@ -98,16 +102,19 @@ export default function Home(){
 
     // 게시글 읽기
     async function readBoardList(){
+        // lastId
+        page = board.length == 0 ? null: board[board.length - 1].id
+        
         const query = {"lastId": page}
 
         const res = await axios.get(url, {params: query})
 
-        const data = res.data
-        setBoardList(prev => {
-            console.log(prev, data)    
-            
-            return [...prev, ...data]
-        })
+        const data = res.data.data
+        const hasNext = res.data.hasNext
+        
+        setBoardList(prev => [...prev, ...data])
+        setHasNext(hasNext)
+
 
 
         // 파일 불러오기
@@ -122,11 +129,6 @@ export default function Home(){
             readCommentsList(boardIdList)
         ])
 
-        /*
-        await readFileList(boardIdList, usernameList)
-        await readLikesList(boardIdList)
-        await readCommentsList(boardIdList)
-        */
 
         return res.status
     }
@@ -144,7 +146,7 @@ export default function Home(){
         // console.log(data)
         
 
-        setPreviewFile([...previewFile, ...data])
+        setPreviewFile(prev => [...prev, ...data])
     }
 
     // 좋아요 읽기
@@ -159,7 +161,7 @@ export default function Home(){
         const data = res.data
         // console.log(data)
 
-        setLikes([...likes , ...data])
+        setLikes(prev => ({...prev , ...data}))
     }
     
     // 댓글 읽기
@@ -171,8 +173,8 @@ export default function Home(){
 
         const res = await axios.get(urlcomments, {params: param, paramsSerializer: params => qs.stringify(params, {arrayFormat: "repeat"})})
         const data = res.data
-    
-        setComments([...comments, ...data])
+
+        setComments(prev => ({...prev, ...data}))
     }
 
 
