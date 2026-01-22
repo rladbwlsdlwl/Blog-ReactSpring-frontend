@@ -33,6 +33,10 @@ export default function UserHome(){
     const [openList, setOpenList] = useState(false)
     const [openListOrderButton, setOpenListOrderButton] = useState(1)
 
+    const [totalPage, setTotalPage] = useState(0) // 총 페이지 수
+    const [totalElement, setTotalElement] = useState(0) // 총 게시글 수
+    let lastPage = 0 
+
 
     // 에러 페이지
     const [error, setError] = useState(null)
@@ -64,10 +68,30 @@ export default function UserHome(){
     }, [username])
 
 
-    async function getBoardList(){
-        const res = await axios.get(url)
-        const data = res.data
+    useEffect(() => {
 
+
+        // 버튼 값이 5, 10, 15
+        if((boardListOrderButton%5 == 0 || openListOrderButton%5 == 0) && board.length < totalElement){
+
+            console.log("게시글을 이어 불러옵니다...", lastPage+1)
+            lastPage++
+            getBoardList()
+
+        }
+
+
+    }, [boardListOrderButton, openListOrderButton])
+
+    async function getBoardList(){
+        const query = {"pageNum": lastPage}
+
+
+        const res = await axios.get(url, {params: query})
+        
+        const data = res.data.data
+        const totalPage = res.data.totalPage
+        const totalElement = res.data.totalElement
 
         // 파일 불러오기
         const boardIdList = data.map(d => d.id)
@@ -78,7 +102,9 @@ export default function UserHome(){
             getCommentsList(boardIdList)
         ])
 
-        setBoard(data)
+        setBoard(prev => [...prev, ...data])
+        setTotalPage(totalPage)
+        setTotalElement(totalElement)
 
         return res.status
     }
@@ -145,7 +171,7 @@ export default function UserHome(){
             <div className = "boardListMiniContainer">
                 <div className = "boardListMiniTitle">
                     <div>
-                        {board.length}개의 글
+                        {totalElement}개의 글
                     </div>
                     <div>
                         <Link onClick = {() => setOpenList(!openList)} className="link">
@@ -162,6 +188,7 @@ export default function UserHome(){
                             username = {username}
                             openListOrderButton = {openListOrderButton}
                             setOpenListOrderButton = {setOpenListOrderButton}    
+                            totalElement = {totalElement}
                         />
                     }
                 </div>
@@ -180,13 +207,14 @@ export default function UserHome(){
                     username = {username}
                     boardListOrderButton = {boardListOrderButton}
                     setBoardListOrderButton = {setBoardListOrderButton}
+                    totalElement = {totalElement}
                 />
             </div>
         </div>
     )
 }
 
-const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comments, setBoardListOrderButton, username}) => {
+const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comments, setBoardListOrderButton, username, totalElement}) => {
     // 이미지 경로 반환
     const getPreviewFile = (postId) =>{
         for(let prevFile of previewFile){
@@ -200,9 +228,9 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
         const boardlist = []
 
         for(let i = 0; i < 5; i++){
-            const idx = (boardListOrderButton - 1) * 5 + i
+            const idx = (boardListOrderButton - 1) * 5 + i // 버튼의 게시글 인덱스
 
-            if(idx >= board.length) break
+            if(idx >= totalElement) break
 
             boardlist.push(<li className = "boardListMainTdLi" key = {`BOARDLIST-${idx}`}>
                 <Link to = {`/${username}/${board[idx].id}`} className="link boardListMainTdImgWrapper">
@@ -226,9 +254,9 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
 
         boardListBtn.push(<span className = "boardListMainBtn" onClick = {() => boardListOrderButton > 1 && setBoardListOrderButton(boardListOrderButton - 1)} key = {`boardlist-main-btn prev`}> {"<"} </span>)
         for(let i=0; i<5; i++){
-            const val = Math.floor((boardListOrderButton-1)/5)*5 + i+1
+            const val = Math.floor((boardListOrderButton-1)/5)*5 + i+1 // 존재 가능한 버튼의 범위
 
-            if((val-1)*5 >= board.length) break
+            if((val-1)*5 >= totalElement) break
 
             if(val == boardListOrderButton){
                 boardListBtn.push(<strong className = "boardListMainBtn" onClick = {() => setBoardListOrderButton(val)} key = {`boardlist-main-btn${i}`}>
@@ -241,7 +269,7 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
             }
         }
 
-        boardListBtn.push(<span className = "boardListMainBtn" onClick = {() => boardListOrderButton*5 < board.length && setBoardListOrderButton(boardListOrderButton + 1)} key = {`boardlist-main-btn next`}> {">"} </span>)
+        boardListBtn.push(<span className = "boardListMainBtn" onClick = {() => boardListOrderButton*5 < totalElement && setBoardListOrderButton(boardListOrderButton + 1)} key = {`boardlist-main-btn next`}> {">"} </span>)
 
         return boardListBtn
     }
@@ -278,7 +306,7 @@ const BoardListMain = ({board, previewFile, likes, boardListOrderButton, comment
 }
 
 
-const BoardListMini = ({board, username, openListOrderButton, setOpenListOrderButton}) =>{
+const BoardListMini = ({board, username, openListOrderButton, setOpenListOrderButton, totalElement}) =>{
     // 게시판 리스트 tbody
     function getBoardListMini(){
         const boardlist = []
@@ -286,7 +314,7 @@ const BoardListMini = ({board, username, openListOrderButton, setOpenListOrderBu
         for(let i = 0; i < 5; i++){
             const idx = (openListOrderButton-1)*5+i
             
-            if(idx >= board.length) break
+            if(idx >= totalElement) break
 
 
             boardlist.push(<tr key = {`boardlist-mini ${idx}`}>
@@ -307,7 +335,7 @@ const BoardListMini = ({board, username, openListOrderButton, setOpenListOrderBu
         for(let i = 0; i < 5; i++){
             const val = Math.floor((openListOrderButton-1)/5)*5 + (i+1)
   
-            if((val - 1)*5 >= board.length) break
+            if((val - 1)*5 >= totalElement) break
 
 
             if(val == openListOrderButton){
@@ -322,7 +350,7 @@ const BoardListMini = ({board, username, openListOrderButton, setOpenListOrderBu
         }
 
 
-        boardListBtn.push(<span className = "boardListMiniBtn" onClick = {() => openListOrderButton*5 < board.length && setOpenListOrderButton(openListOrderButton + 1)} key = {`boardlist-mini-btn next`}> {">"} </span>)
+        boardListBtn.push(<span className = "boardListMiniBtn" onClick = {() => openListOrderButton*5 < totalElement && setOpenListOrderButton(openListOrderButton + 1)} key = {`boardlist-mini-btn next`}> {">"} </span>)
 
         return boardListBtn
     }
