@@ -17,6 +17,7 @@ export default function UserBoard(){
     const urllikesGET = urlpath + `/likes`
     const urllikes = urlpath + `/likes/${id}`
     const urlcommentsGET = urlpath + "/comments"
+    const urltags = urlpath + `/tags/${id}`
 
 
     // 활성 회원 불러오기
@@ -29,6 +30,7 @@ export default function UserBoard(){
     const [previewFile, setPreviewFile] = useState([])
     const [likes, setLikes] = useState({})
     const [comments, setComments] = useState({})
+    const [hashtags, setHashtags] = useState([])
 
     const [error, setError] = useState(null)
 
@@ -39,7 +41,8 @@ export default function UserBoard(){
             getBoard(),
             getFileList(),
             getLikes(),
-            getComments()
+            getComments(),
+            getHashtags()
         ]).catch(err => {
             console.log(err)
 
@@ -57,6 +60,15 @@ export default function UserBoard(){
             // previewFile.map(prevFile => URL.revokeObjectURL(prevFile.file))
         }
     }, [])
+
+    // 해시태그 불러오기
+    async function getHashtags(){
+        const res = await axios.get(urltags)
+        const data = res.data
+    
+        setHashtags(data.data) // response.data.data는 List<String>
+    }
+
 
     // 댓글 불러오기
     async function getComments() {
@@ -137,6 +149,10 @@ export default function UserBoard(){
             <BoardOption
                 board = { Object.keys(board).length == 0 ? null: board }
                 username = {username}
+            />
+
+            <HashtagList
+                hashtags = {hashtags}   
             />
 
             <BoardList 
@@ -233,6 +249,21 @@ const BoardOption = ({ board, username }) => {
                 { board && getDateTemplate2(board.created_at) }에 작성한 글입니다
             </span>
             
+        </div>
+    )
+}
+
+const HashtagList = ({hashtags}) => {
+
+    return (
+        <div className="hashtagListContainer">
+            {
+                hashtags.length > 0 && hashtags.map((data, index) => (
+                    <span key={index} className="hashtagListSpan">
+                        #{data.tagname}
+                    </span>
+                ))
+            }
         </div>
     )
 }

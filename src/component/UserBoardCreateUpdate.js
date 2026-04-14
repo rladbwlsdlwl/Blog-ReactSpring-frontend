@@ -9,6 +9,7 @@ import FileList from "./common/FileList"
 
 import "../css/UserBoardCreateUpdate.css"
 import { getErrorCode, getErrorMsg, getFileUrl } from "../utils/commonUtils"
+import { type } from "@testing-library/user-event/dist/type"
 
 export default function UserBoardCreateUpdate(){
     const { username } = useParams()
@@ -19,6 +20,7 @@ export default function UserBoardCreateUpdate(){
     const urlupdate = urlpath + `/${username}/${id}`
     const urlfilewrite = urlpath + `/${username}/file`
     const urlfile = urlpath + `/${username}/file/${id}`
+    const urltags = urlpath + `/tags/${id}`
 
     
     // 접속 유저 이름찾기
@@ -28,15 +30,18 @@ export default function UserBoardCreateUpdate(){
 
 
     // 인풋 데이터
-    const beforeBoard = useRef({}) // 롤백 데이터 저장
     const [board, setBoard] = useState({})
     const [file, setFile] = useState([]) // 새로운 파일만 등록 <File>
     const [previewFile, setPreviewFile] = useState([]) // 모든 파일 미리보기 url
     const [beforeFilenameList, setBeforeFilenameList] = useState([]) // 기존 파일만 등록 <Json Obj>
+    const [hashtag, setHashtag] = useState([])
 
 
     // 에러 페이지
     const [error, setError] = useState(null)
+    // 모달창 활성화
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
 
 
     useEffect(() => {
@@ -47,7 +52,8 @@ export default function UserBoardCreateUpdate(){
             
             Promise.all([
                 getBoardList(),
-                getFileList()
+                getFileList(),
+                getHashtagList()
             ]).catch(err => {
                 const code = getErrorCode(err)
                 const msg = getErrorMsg(err)
@@ -78,7 +84,6 @@ export default function UserBoardCreateUpdate(){
 
         const data = res.data
 
-        beforeBoard.current = data
         setBoard(data)
     }
 
@@ -90,6 +95,13 @@ export default function UserBoardCreateUpdate(){
 
    
         setPreviewFile(data) // currentFilename =  "" 이면 신규 파일, 그렇지 않으면 기존 파일
+    }
+
+    async function getHashtagList(){
+        const res = await axios.get(urltags)
+        const data = res.data.data // List<String>
+
+        setHashtag(data.map(d => d.tagname)) // tagname만 추출하여 저장
     }
 
 
@@ -106,13 +118,16 @@ export default function UserBoardCreateUpdate(){
     return (
         <div className = "userBoardCreateUpdateContainer">
             <Toolbar
-                beforeBoard = {beforeBoard}
                 board = {board}
                 file = {file}
                 setFile = {setFile}
                 previewFile = {previewFile}
                 setPreviewFile = {setPreviewFile}
                 beforeFilenameList = {beforeFilenameList}
+                hashtag = {hashtag}
+                setHashtag = {setHashtag}
+                isModalOpen = {isModalOpen}
+                setIsModalOpen = {setIsModalOpen}
 
                 isUpdatePost = {type == "update"}
                 urlwrite = {urlwrite}
@@ -146,9 +161,12 @@ export default function UserBoardCreateUpdate(){
 
 
 // 게시판 전송 및 파일 조작(File to Base64, Binary data) 컨테이너
-const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, settingToken, getErrorCode, getErrorMsg, beforeBoard}) => {
+const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilenameList, urlwrite, urlupdate, urlfilewrite, isUpdatePost, token, username, author, settingToken, getErrorCode, getErrorMsg, isModalOpen, setIsModalOpen, hashtag, setHashtag}) => {
 
     const navigate = useNavigate()
+    const [tmpHashtag, setTmpHashtag] = useState("")
+    const [hashtagError, setHashtagError] = useState("")
+
 
     // setting - 파일 이미지 (File)
     function handlerImage(e){
@@ -231,6 +249,39 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
 
     // }
 
+
+    // 해시태그 핸들러
+    function handleHashtagInput(e){
+        const value = e.target.value
+        
+        setHashtagError("")
+        setTmpHashtag(value.trim())
+    }
+
+    // 해시태그 엔터 감지 핸들러
+    function handleHashtagInputEnter(e){
+
+        if(e.key == "Enter"){
+            if(tmpHashtag == "")
+                return 
+            if(hashtag.includes(tmpHashtag)){
+                setHashtagError("이미 존재하는 해시태그입니다")
+                return
+            }
+
+            setHashtag([...hashtag, tmpHashtag])
+            setTmpHashtag("")
+        }
+
+    }
+
+    // 해시태그 클릭 핸들러
+    function handleHashtag(e){
+        const value = e.target.getAttribute("value")
+
+        setHashtag(hashtag.filter(tag => tag != value))
+    }
+
     // 게시글 작성 핸들러
     function handleSubmitPost(){
         
@@ -245,61 +296,22 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             console.log(err)
             
             const code = getErrorCode(err)
-            if(code == 401){ // 토큰 만료 - JWT EXPIRED
-                settingToken("")
-            }else if(code == 500){ // 네트워크 에러 - 파일 용량 초과, 연결 끊어짐, 원자성으로 인한 롤백 수행 (파일 - 게시판)
-                
-                if(beforeBoard.current.id){ // 롤백 데이터가 존재하는 경우 - 되돌리기
-
-                    const header = {
-                        "Authentication": token
-                    }
-            
-                    const postData = {
-                        ...beforeBoard.current, 
-                        author: author
-                    }
-
-                    axios.patch(urlupdate, postData, {headers: header}).then(res => {
-                        const data = res.data
-                        
-                        console.log("롤백 성공! - ", data)
-                    }).catch(err => {
-                        
-                        console.log("롤백 실패! - ", err)
-                    })
-
-                }else if(beforeBoard.current.boardId){ // 롤백 데이터가 없는 경우 - 삭제
-                    
-                    const id = beforeBoard.current.boardId
-                    const urldelete = urlpath + `/${username}/${id}`
-                    
-                    const header = {
-                        "Authentication": token
-                    }
-            
-                    axios.delete(urldelete, {headers: header}).then(res => {
-                        const data = res
-                        
-                        console.log("롤백 성공! - ", data)
-                    }).catch(err => {
-                        
-                        console.log("롤백 실패! - ", err)
-                    })
-
-                }else{
-                    console.log("로직에 문제가 있는 상황입니다... 트랜젝션이 이루어지지 않음")
-                }
-            
-            } 
-
             const msg = getErrorMsg(err)
+
+            if(code == 401) // 토큰 만료 - JWT EXPIRED
+                settingToken("")
+            else
+                console.log("로직에 문제가 있는 상황입니다... 트랜젝션이 이루어지지 않음")
+                
+
+            
             alert(`게시판 작성 에러 - ${msg}`)
         })
     }
 
     // 게시글 작성
     async function postBoard(){
+        // http header
         const header = {
             "Authentication": token
         }
@@ -308,73 +320,38 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
             ...board
         }
 
+        // http body
+        const formData = new FormData()
+
+        // file
+        file.forEach(f => formData.append("file", f))
+        
+        // board
+        formData.append("board", new Blob([JSON.stringify(postData)], {type: "application/json"}))
+
+        // hashtag
+        const tag = {"name": hashtag}
+        formData.append("hashtag", new Blob([JSON.stringify(tag)], {type: "application/json"}))
+
+
+
         if(isUpdatePost){
             // patch
+            beforeFilenameList.forEach(dfilename => formData.append("removeFilenameList", new Blob([dfilename], {type: "application/json"})) )
 
-            const res = await axios.patch(urlupdate, postData, {headers: header})
+            const res = await axios.patch(urlupdate, formData, {headers: header})
             const data = res.data
             
-            // console.log(data)
-
-            await submitPostFile(data.id, isUpdatePost)
-
             return data.id
         }else{
             // post
-            
-            const res = await axios.post(urlwrite, postData, {headers: header})
+
+            const res = await axios.post(urlwrite, formData, {headers: header})
             const data = res.data
-
-            beforeBoard.current = {boardId: data.id}
-            // console.log(data)
-
-            await submitPostFile(data.id, isUpdatePost)
 
             return data.id
         }
 
-    }
-
-    // 파일 작성
-    async function submitPostFile(boardId, isUpdatePost){
-        const urlfilewriteapi = `${urlfilewrite}/${boardId}`
-
-        const header = {
-            "Authentication": token,
-            "Content-Type": "multipart/form-data"
-        }
-
-        if(isUpdatePost){
-
-            // beforeFilenameList - String 포함하여 전송
-            // formdata로 보내기 위해 File 객체의 상위 클래스인 Blob으로 형변환 
-            const formData = new FormData()
-
-            file.forEach(f => formData.append("file", f))
-            beforeFilenameList.forEach(dfilename => formData.append("removeFilenameList", new Blob([dfilename], {type: "application/json"})) )
-            
-            // console.log(beforeFilenameList)
-            
-
-
-            const res = await axios.patch(urlfilewriteapi, formData, {headers: header})
-            // const data = res.data
-
-            // console.log(data)
-        }
-        else{
-            const formData = new FormData()
-            
-            file.forEach(f => formData.append("file", f))
-            
-
-
-            const res = await axios.post(urlfilewriteapi, formData, {headers: header})
-            // const data = res.data
-
-            // console.log(data)
-
-        }   
     }
 
 
@@ -385,9 +362,22 @@ const Toolbar = ({board, file, setFile, previewFile, setPreviewFile, beforeFilen
                 <input type = "file" accept = "image/*" multiple onChange = {handlerImage} className="toolbarLabelInput"></input>
             </label>
 
-            <button onClick = {handleSubmitPost} className="toolbarPostBtn">
-                저장
+            <button onClick = {() => setIsModalOpen(true)} className="toolbarPostBtn">
+                작성
             </button>
+            {isModalOpen && (
+                <div className="toolbarModalContainer">
+                    <div className="toolbarModalContent"> 
+                        <button onClick = {() => setIsModalOpen(false)} className="toolbarModalCloseButton">X</button>
+                        {
+                            hashtag.map(tag => <span value = {tag} onClick = {handleHashtag} className="toolbarModalHashtag"> {tag} </span>)
+                        }
+                        <input type = "text" placeholder="해시태그 입력 (엔터로 구분)" value = {tmpHashtag} onChange = {handleHashtagInput} onKeyDown = {handleHashtagInputEnter} className="toolbarModalInput"></input>
+                        <span>{hashtagError}</span>
+                        <button onClick = {handleSubmitPost} className="toolbarModalButton">작성</button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
